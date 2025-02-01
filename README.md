@@ -19,6 +19,7 @@ Key features include:
 
 Here’s the basic directory structure for the project:
 
+```
 smart-home-simulator/
 ├── assets/               # Images, icons, and other media for the GUI
 ├── src/                  # Python source code
@@ -32,7 +33,7 @@ smart-home-simulator/
 ├── .gitignore            # Ignore unnecessary files (e.g., pycache, venv)
 ├── README.md             # Project documentation
 └── LICENSE               # License file if applicable
-
+```
 ## Requirements
 
 This project requires Python 3.x and the following dependencies:
