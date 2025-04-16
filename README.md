@@ -1,48 +1,97 @@
 # Smart Home Automation System Simulator
 
-A Python-based simulator for controlling and monitoring virtual devices in a smart home environment. This project uses Tkinter for the GUI and object-oriented programming (OOP) principles to manage devices, rooms, and automation rules.
+A cross-platform mobile app and backend system simulating smart home device automation and monitoring. Built with **React Native (Expo)**, a **Python backend (Flask/Django)**, and **MySQL**, the app mimics the experience of managing a smart home through a sleek, modern UI.
 
-## Description
+## 📱 Overview
 
-The Smart Home Automation System Simulator allows users to control and monitor virtual devices such as lights, thermostats, and security cameras. The application features a user-friendly Tkinter dashboard that displays the current status of devices, enables users to toggle devices, and allows the creation of automation rules.
+This simulator provides a polished mobile experience for controlling and monitoring a set of pre-defined smart home devices. The app consolidates various smart features—automation rules, energy usage, device insights—into a single, user-friendly dashboard. It is ideal for prototyping smart home interfaces, UI/UX experimentation, and understanding IoT-driven design patterns.
 
-This project simulates a real-world smart home system where devices can be grouped by rooms, controlled individually or in bulk, and used with automation rules to trigger actions based on certain conditions (like time of day or motion detection).
+### 🔑 Key Features
 
-Key features include:
-- Control and monitor devices like lights, thermostats, and cameras
-- Device grouping by rooms
-- Support for automation rules (e.g., turning on lights at sunset)
-- Simple energy usage tracking and analytics
-- Event-driven programming and flexible, extensible system design
+- 📊 **Home Dashboard**: See summarized analytics, automation rules, energy metrics, and user preferences.
+- 💡 **Device Interaction**: View all connected smart devices with status indicators and categorized display.
+- 🔍 **Search Functionality**: Easily explore devices and rooms.
+- ⚙️ **User Settings**: Manage profile, notifications, and account-level preferences.
+- 📶 **Offline Simulation**: No actual hardware is required; devices and behaviors are simulated.
+- 🔐 **Auth Flow**: Includes login and registration screens for session control (optional extension).
 
-## Project Structure
+## 🧱 Tech Stack
 
-Here’s the basic directory structure for the project:
+| Layer       | Technology            |
+|------------|------------------------|
+| Frontend   | React Native (Expo)    |
+| Backend    | Python (Flask or Django) |
+| Database   | MySQL                  |
+| UI Theme   | Dark mode, custom palette (#FFB267, #282424, #211D1D, #393535, #FFFFFF) |
+
+## 🗂️ Project Structure
 
 ```
 smart-home-simulator/
-├── assets/               # Images, icons, and other media for the GUI
-├── src/                  # Python source code
-│   ├── __init__.py       # Make this a package
-│   ├── main.py           # Entry point for the GUI app
-│   ├── device.py         # Device class
-│   ├── room.py           # Room class
-│   ├── automation.py     # Automation rule class
-│   └── dashboard.py      # GUI logic using Tkinter
-├── requirements.txt      # List of dependencies
-├── .gitignore            # Ignore unnecessary files (e.g., pycache, venv)
-├── README.md             # Project documentation
-└── LICENSE               # License file if applicable
+├── assets/                  # App media (icons, images)
+├── app/                     # Frontend views and navigation (Expo Router)
+│   ├── home.tsx
+│   ├── devices.tsx
+│   ├── search.tsx
+│   ├── settings.tsx
+│   ├── login.tsx
+│   └── register.tsx
+├── components/              # Reusable UI components
+├── backend/                 # Python backend (Flask or Django)
+│   ├── api/
+│   ├── models/
+│   └── routes/
+├── database/                # MySQL schema and setup
+├── README.md
+├── package.json             # Frontend dependencies
+├── requirements.txt         # Backend dependencies
+└── .gitignore
 ```
-## Requirements
 
-This project requires Python 3.x and the following dependencies:
+## 🚀 Getting Started
 
-- **Tkinter**: A built-in Python library for creating graphical user interfaces.
-- **Pillow**: Python Imaging Library for handling images (used for icons or media in the GUI).
-- **matplotlib**: For potential future analytics or data visualization features.
+### Prerequisites
 
-You can install the required dependencies by running:
+- **Node.js** and **Expo CLI** for mobile development
+- **Python 3.x**, **pip**, and **MySQL** for the backend
+- Emulator or physical device (Android/iOS) for testing
+
+### Frontend Setup
 
 ```bash
+cd smart-home-simulator
+npm install
+npx expo start
+```
+
+### Backend Setup
+
+```bash
+cd backend
 pip install -r requirements.txt
+python app.py  # or manage.py runserver for Django
+```
+
+> Adjust environment variables and DB settings as needed in the backend config.
+
+## 📸 Screens
+
+- **Home**: Unified view of all smart insights.
+- **Devices**: Interactive device tiles with status and type indicators.
+- **Search**: Search bar and categorized results with manual add option.
+- **Settings**: User profile management and logout functionality.
+
+## 🛠️ Roadmap
+
+- [ ] Add real-time device state syncing
+- [ ] Enable CRUD for automation rules
+- [ ] OAuth integration
+- [ ] Cloud storage or Firebase for persistence
+
+## 📄 License
+
+This project is licensed under the MIT License. See [LICENSE](./LICENSE) for details.
+
+---
+
+Let me know if you want me to add screenshots, badges (e.g., Expo, Python), or GitHub deployment instructions!
