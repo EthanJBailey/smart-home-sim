@@ -92,6 +92,3 @@ python app.py  # or manage.py runserver for Django
 
 This project is licensed under the MIT License. See [LICENSE](./LICENSE) for details.
 
----
-
-Let me know if you want me to add screenshots, badges (e.g., Expo, Python), or GitHub deployment instructions!
