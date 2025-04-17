@@ -8,8 +8,10 @@ import {
   Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 
 export default function SettingsScreen() {
+  const router = useRouter();
   return (
     <View style={styles.container}>
       {/* Header */}
@@ -83,7 +85,7 @@ export default function SettingsScreen() {
       </ScrollView>
 
       {/* Logout Button */}
-      <TouchableOpacity style={styles.logoutButton}>
+      <TouchableOpacity style={styles.logoutButton} onPress={() => router.replace('/login')}>
         <Text style={styles.logoutText}>Log out</Text>
       </TouchableOpacity>
     </View>
