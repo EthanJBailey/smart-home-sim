@@ -16,9 +16,23 @@ export default function RegisterScreen() {
   const [password, setPassword] = useState('');
 
   const handleRegister = () => {
-    console.log('Register pressed');
-    // Replace with your signup logic
-    router.replace('/(tabs)');
+    const now = new Date().toLocaleString();
+    console.log(`[${now}]: Registration attempt`);
+    // IMPLEMENT SIGN UP LOGIC HERE --> DATA TO DB
+    if (fullName) {
+      if (email.trim()) {
+        if (password) {
+          router.replace('/setup-new-home');
+        } else {
+          alert("Please enter a password.");
+        }
+      } else {
+        alert("Please enter your email address.");
+      }
+    } else {
+      alert("Please enter your name.");
+    }
+    
   };
 
   return (

@@ -8,15 +8,25 @@ import {
   Platform,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { navigate } from 'expo-router/build/global-state/routing';
-import HomeScreen from './(tabs)';
 
 export default function LoginScreen() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
-  
+  const handleLogin = () => {
+    const now = new Date().toLocaleString();
+    console.log(`[${now}]: Login attempt`);
+    if (email.trim()) {         // Email Entered
+      if (password.trim()) {    // Password Entered
+        router.push('/(tabs)'); // HANDLE LOGIN --> SEND DATA (HASHED) TO DATABASE TO VERIFY
+    } else {
+      alert("Please enter your password.");
+    }} else {
+      alert("Please enter your email address.");
+    }
+      
+  };
   return (
     <View style={styles.container}>
       <Text style={styles.wifi}>Wifi: Resnet-5G</Text>
@@ -44,7 +54,6 @@ export default function LoginScreen() {
           onChangeText={setPassword}
         />
 
-        {/* Custom Checkbox Row */}
         <View style={styles.checkboxRow}>
           <TouchableOpacity
             style={[styles.checkboxBox, rememberMe && styles.checkboxChecked]}
@@ -60,7 +69,7 @@ export default function LoginScreen() {
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity style={styles.loginButton} onPress={() => router.replace('/(tabs)')}>
+        <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
           <Text style={styles.loginText}>Login</Text>
         </TouchableOpacity>
 
