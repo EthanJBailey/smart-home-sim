@@ -18,4 +18,4 @@ os.chdir("...")
 # Customize traceback
 install(show_locals=True)  # Show local variables in tracebacks
 
-
+app = FastAPI()
