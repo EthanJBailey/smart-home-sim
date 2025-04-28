@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from db import get_db
-from models.user import Device
+from models.device import Device
 from pydantic import BaseModel
 
 class DeviceCreate(BaseModel):
@@ -12,7 +12,7 @@ router = APIRouter()
 
 @router.post("/devices/")
 def create_device(device: DeviceCreate, db: Session = Depends(get_db)):
-    db_device = db.query(Device).filter(Device.id == Device.id)
+    db_device = db.query(Device).filter(Device.id == device.id).first()
     new_device = Device(name=device.name, id=device.id)
     db.add(new_device)
     db.commit()
