@@ -29,7 +29,6 @@ export default function LoginScreen() {
   };
   return (
     <View style={styles.container}>
-      <Text style={styles.wifi}>Wifi: Resnet-5G</Text>
 
       <Text style={styles.title}>Welcome to SmartThingies</Text>
       <Text style={styles.subtitle}>Sign in or create your profile below</Text>

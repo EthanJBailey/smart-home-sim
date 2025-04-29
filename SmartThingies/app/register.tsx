@@ -46,7 +46,6 @@ export default function RegisterScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.wifi}>Wifi: Resnet-5G</Text>
 
       <Text style={styles.title}>Register</Text>
       <Text style={styles.subtitle}>Create your new profile below</Text>

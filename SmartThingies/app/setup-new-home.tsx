@@ -28,7 +28,6 @@ export default function NameHomeScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.wifi}>Wifi: Resnet-5G</Text>
 
       <View style={styles.card}>
         <Image
