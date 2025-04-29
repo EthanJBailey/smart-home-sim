@@ -1,13 +1,7 @@
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  Platform,
-} from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Platform, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function RegisterScreen() {
   const router = useRouter();
@@ -15,24 +9,39 @@ export default function RegisterScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleRegister = () => {
-    const now = new Date().toLocaleString();
-    console.log(`[${now}]: Registration attempt`);
-    // IMPLEMENT SIGN UP LOGIC HERE --> DATA TO DB
-    if (fullName) {
-      if (email.trim()) {
-        if (password) {
-          router.replace('/setup-new-home');
-        } else {
-          alert("Please enter a password.");
-        }
-      } else {
-        alert("Please enter your email address.");
-      }
-    } else {
-      alert("Please enter your name.");
+  const handleRegister = async () => {
+    if (!fullName || !email || !password) {
+      Alert.alert('Missing Fields', 'Please fill out all fields.');
+      return;
     }
-    
+
+    try {
+      const response = await fetch('http://146.190.130.85:8000/register/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          fullname: fullName,
+          email: email,
+          password: password,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Registration failed');
+      }
+
+      const data = await response.json();
+      console.log('Success:', data);
+
+      await AsyncStorage.setItem('isLoggedIn', 'true');
+      router.replace('/setup-new-home'); // ⬅️ Go to setup-new-home immediately after register
+    } catch (error: any) {
+      console.error('Error:', error.message);
+      Alert.alert('Registration Error', error.message);
+    }
   };
 
   return (

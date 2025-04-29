@@ -10,39 +10,39 @@ import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 
 export default function TabLayout() {
-  
   const colorScheme = useColorScheme();
 
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
         headerShown: false,
+        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+        tabBarInactiveTintColor: Colors[colorScheme ?? 'light'].tabIconDefault,
         tabBarButton: HapticTab,
         tabBarBackground: TabBarBackground,
         tabBarStyle: Platform.select({
           ios: {
-            // Use a transparent background on iOS to show the blur effect
             position: 'absolute',
+            borderTopColor: 'transparent',
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
           },
-          default: {},
+          default: {
+            backgroundColor: '#211D1D',
+            borderTopColor: '#393535',
+          },
         }),
-      }}>
+      }}
+    >
       <Tabs.Screen
         name="index"
         options={{
           title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          tabBarIcon: ({ color }) => (
+            <IconSymbol size={28} name="house.fill" color={color} />
+          ),
         }}
       />
-      {/* <Tabs.Screen
-        name="explore"
-        options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
-        }}
-      />  */}
-      
+
       <Tabs.Screen
         name="search"
         options={{
@@ -51,7 +51,7 @@ export default function TabLayout() {
             <MaterialIcons name="search" size={28} color={color} />
           ),
         }}
-      />  
+      />
 
       <Tabs.Screen
         name="devices"
@@ -61,7 +61,7 @@ export default function TabLayout() {
             <MaterialIcons name="devices" size={28} color={color} />
           ),
         }}
-      /> 
+      />
 
       <Tabs.Screen
         name="settings"
@@ -71,7 +71,7 @@ export default function TabLayout() {
             <MaterialIcons name="settings" size={28} color={color} />
           ),
         }}
-      /> 
+      />
     </Tabs>
   );
 }

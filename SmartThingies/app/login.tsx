@@ -1,31 +1,31 @@
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  Platform,
-} from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Platform, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function LoginScreen() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
-  const handleLogin = () => {
-    const now = new Date().toLocaleString();
-    console.log(`[${now}]: Login attempt`);
-    if (email.trim()) {         // Email Entered
-      if (password.trim()) {    // Password Entered
-        router.push('/(tabs)'); // HANDLE LOGIN --> SEND DATA (HASHED) TO DATABASE TO VERIFY
-    } else {
-      alert("Please enter your password.");
-    }} else {
-      alert("Please enter your email address.");
+
+  const handleLogin = async () => {
+    if (!email.trim() || !password.trim()) {
+      Alert.alert('Missing fields', 'Please enter your email and password.');
+      return;
     }
-      
+    try {
+      const response = await axios.post('http://146.190.130.85:8000/login', { email, password });
+      if (rememberMe) {
+        await AsyncStorage.setItem('userEmail', email);
+      }
+      await AsyncStorage.setItem('isLoggedIn', 'true');
+      router.replace('/(tabs)');
+    } catch (error: any) {
+      console.error(error);
+      Alert.alert('Login Failed', error.response?.data?.detail || 'An error occurred.');
+    }
   };
   return (
     <View style={styles.container}>
