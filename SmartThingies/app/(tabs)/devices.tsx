@@ -1,6 +1,8 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import { View, Text, StyleSheet, FlatList, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+import { useUser } from '@/contexts/UserContext';
 
 const devices = [
   { id: '1', name: 'Bork V530', type: 'Vacuum cleaner', image: require('@/assets/images/vacuum.png') },
@@ -12,14 +14,24 @@ const devices = [
 ];
 
 export default function DevicesScreen() {
+  const router = useRouter();
+  const {user} = useUser();
+  // Ensure user is logged in.
+  useEffect(() => {
+      if (!user) {
+        requestAnimationFrame(() => {
+          router.replace('/login');
+        })
+      }
+    })
   return (
     <View style={styles.container}>
       <View style={styles.headerWrapper}>
         <Text style={styles.title}>All Devices</Text>
         <View style={styles.rightInfo}>
           <Text style={styles.deviceCount}>6 devices</Text>
-          <Ionicons name="wifi" size={18} color="#FFB267" style={styles.wifiIcon} />
-          <Text style={styles.wifiLabel}>Resnet-5G</Text>
+          {/* <Ionicons name="wifi" size={18} color="#FFB267" style={styles.wifiIcon} />
+          <Text style={styles.wifiLabel}>Resnet-5G</Text> */}
         </View>
       </View>
 

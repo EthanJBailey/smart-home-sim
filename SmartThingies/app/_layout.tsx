@@ -6,6 +6,7 @@ import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { View, ActivityIndicator } from 'react-native';
+import { UserProvider } from '@/contexts/UserContext';
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -33,6 +34,7 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+      <UserProvider>
       {/* Stack Navigator */}
       <Stack
         screenOptions={{
@@ -49,6 +51,7 @@ export default function RootLayout() {
         <Stack.Screen name="+not-found" />
       </Stack>
       <StatusBar style="auto" />
+      </UserProvider>
     </ThemeProvider>
   );
 }

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,9 +9,19 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { useUser } from '@/contexts/UserContext';
 
 export default function SettingsScreen() {
+  const {user} = useUser();
   const router = useRouter();
+  // Ensure user is logged in.
+  useEffect(() => { 
+    if (!user) {
+      requestAnimationFrame(() => {
+        router.replace('/login');
+      })
+    }
+  })
   return (
     <View style={styles.container}>
       {/* Header */}
@@ -33,7 +43,7 @@ export default function SettingsScreen() {
           />
           <View>
             <Text style={styles.userName}>John Doe</Text>
-            <Text style={styles.userEmail}>johndoe@example.com</Text>
+            <Text style={styles.userEmail}>{user?.email}</Text>
           </View>
         </View>
 

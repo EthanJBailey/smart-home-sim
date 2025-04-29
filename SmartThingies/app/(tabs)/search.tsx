@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,6 +9,8 @@ import {
   Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useUser } from '@/contexts/UserContext';
+import { useRouter } from 'expo-router';
 
 const devices = [
   {
@@ -37,6 +39,15 @@ const devices = [
 
 export default function SearchScreen() {
   const [query, setQuery] = useState('');
+  const router = useRouter();
+  const {user} = useUser();
+  useEffect(() => {
+      if (!user) {
+        requestAnimationFrame(() => {
+          router.replace('/login');
+        })
+      }
+    })
 
   return (
     <View style={styles.container}>
@@ -45,8 +56,8 @@ export default function SearchScreen() {
               <Text style={styles.title}>Search</Text>
               <View style={styles.rightInfo}>
                 <Text style={styles.deviceCount}>6 devices</Text>
-                <Ionicons name="wifi" size={18} color="#FFB267" style={styles.wifiIcon} />
-                <Text style={styles.wifiLabel}>Resnet-5G</Text>
+                {/* <Ionicons name="wifi" size={18} color="#FFB267" style={styles.wifiIcon} />
+                <Text style={styles.wifiLabel}>Resnet-5G</Text> */}
               </View>
             </View>
 

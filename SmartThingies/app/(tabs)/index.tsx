@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {
   View,
   Text,
@@ -8,9 +8,21 @@ import {
   Platform,
 } from 'react-native';
 import Slider from '@react-native-community/slider';
+import { useRouter } from 'expo-router';
+import { useUser } from '@/contexts/UserContext';
 import { MaterialCommunityIcons, Feather } from '@expo/vector-icons';
 
 export default function HomeScreen() {
+  const router = useRouter();
+  const {user} = useUser();
+  // Ensure user is logged in.
+  useEffect(() => {
+      if (!user) {
+        requestAnimationFrame(() => {
+          router.replace('/login');
+        })
+      }
+    })
   return (
     <View style={styles.container}>
       <ImageBackground
