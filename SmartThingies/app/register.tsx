@@ -2,9 +2,12 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Platform, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useAuth } from '../context/AuthContext'; // Adjust path as needed
+
 
 export default function RegisterScreen() {
   const router = useRouter();
+  const { setUser } = useAuth();
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -36,7 +39,15 @@ export default function RegisterScreen() {
       const data = await response.json();
       console.log('Success:', data);
 
+      // Save user in context
+      setUser({
+        full_name: data.full_name,
+        email: data.email,
+      });      
+      
       await AsyncStorage.setItem('isLoggedIn', 'true');
+      router.replace('/setup-new-home');
+            
       router.replace('/setup-new-home'); // ⬅️ Go to setup-new-home immediately after register
     } catch (error: any) {
       console.error('Error:', error.message);

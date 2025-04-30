@@ -9,23 +9,29 @@ import {
   Platform,
 } from 'react-native';
 import { useRouter } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function NameHomeScreen() {
   const [homeName, setHomeName] = useState('');
   const router = useRouter();
 
-  const handleNext = () => {
-    console.log('Home name entered:', homeName);
+  const handleNext = async () => {
     if (homeName.trim()) {
-      router.push({
-        pathname: '/setup-new-room',
-        params: { homeName },
-      });
+      try {
+        await AsyncStorage.setItem('homeName', homeName); // ✅ must be awaited in an async function
+        router.push({
+          pathname: '/setup-new-room',
+          params: { homeName },
+        });
+      } catch (error) {
+        console.error('Failed to save home name:', error);
+        alert('Something went wrong. Please try again.');
+      }
     } else {
-      alert("Please enter a name for your home.");
+      alert('Please enter a name for your home.');
     }
   };
-
+  
   return (
     <View style={styles.container}>
       <Text style={styles.wifi}>Wifi: Resnet-5G</Text>

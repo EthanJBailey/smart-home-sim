@@ -10,15 +10,21 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 
+import { useAuth } from '../../context/AuthContext';
+
+
 export default function SettingsScreen() {
   const router = useRouter();
+  const { user } = useAuth();
+
+  console.log('User from context:', user);
+
   return (
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.headerWrapper}>
         <Text style={styles.title}>Settings</Text>
         <View style={styles.rightInfo}>
-          <Text style={styles.deviceCount}>6 devices</Text>
           <Ionicons name="wifi" size={18} color="#FFB267" style={styles.wifiIcon} />
           <Text style={styles.wifiLabel}>Resnet-5G</Text>
         </View>
@@ -31,9 +37,9 @@ export default function SettingsScreen() {
             source={require('@/assets/images/user-placeholder.png')} // Replace with real user image
             style={styles.avatar}
           />
-          <View>
-            <Text style={styles.userName}>John Doe</Text>
-            <Text style={styles.userEmail}>johndoe@example.com</Text>
+          <View>                   
+            <Text style={styles.userName}>{user?.full_name || 'Guest'}</Text>
+            <Text style={styles.userEmail}>{user?.email || 'noemail@unknown.com'}</Text>
           </View>
         </View>
 

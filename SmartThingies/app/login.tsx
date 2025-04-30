@@ -3,9 +3,12 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Platform, Alert } 
 import { useRouter } from 'expo-router';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useAuth } from '../context/AuthContext';
+
 
 export default function LoginScreen() {
   const router = useRouter();
+  const { setUser } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
@@ -17,16 +20,29 @@ export default function LoginScreen() {
     }
     try {
       const response = await axios.post('http://146.190.130.85:8000/login', { email, password });
+  
+      console.log('Login response data:', response.data);
+
+      // ✅ Save user in context
+      setUser({
+        full_name: response.data.user.full_name,
+        email: response.data.user.email,
+      });   
+
+      // ✅ Store login info if needed
       if (rememberMe) {
         await AsyncStorage.setItem('userEmail', email);
       }
       await AsyncStorage.setItem('isLoggedIn', 'true');
+  
+      // ✅ Navigate to tabs
       router.replace('/(tabs)');
     } catch (error: any) {
       console.error(error);
       Alert.alert('Login Failed', error.response?.data?.detail || 'An error occurred.');
     }
   };
+  
   return (
     <View style={styles.container}>
       <Text style={styles.wifi}>Wifi: Resnet-5G</Text>
