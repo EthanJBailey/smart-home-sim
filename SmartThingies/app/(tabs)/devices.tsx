@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React, { useEffect, useState } from 'react';
 import {
   View,
@@ -11,6 +12,13 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
+=======
+import React, {useEffect} from 'react';
+import { View, Text, StyleSheet, FlatList, Image } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+import { useUser } from '@/contexts/UserContext';
+>>>>>>> 40d5a3472453dfe77106a0bae13023c8256875a7
 
 // Image mapping
 const imageMap = {
@@ -21,6 +29,7 @@ const imageMap = {
 };
 
 export default function DevicesScreen() {
+<<<<<<< HEAD
   const [devices, setDevices] = useState([]);
   const [selectedDevice, setSelectedDevice] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
@@ -60,14 +69,32 @@ export default function DevicesScreen() {
   };
   
 
+=======
+  const router = useRouter();
+  const {user} = useUser();
+  // Ensure user is logged in.
+  useEffect(() => {
+      if (!user) {
+        requestAnimationFrame(() => {
+          router.replace('/login');
+        })
+      }
+    })
+>>>>>>> 40d5a3472453dfe77106a0bae13023c8256875a7
   return (
     <View style={styles.container}>
       <View style={styles.headerWrapper}>
         <Text style={styles.title}>All Devices</Text>
         <View style={styles.rightInfo}>
+<<<<<<< HEAD
           <Text style={styles.deviceCount}>{devices.length} devices</Text>
           <Ionicons name="wifi" size={18} color="#FFB267" style={styles.wifiIcon} />
           <Text style={styles.wifiLabel}>Resnet-5G</Text>
+=======
+          <Text style={styles.deviceCount}>6 devices</Text>
+          {/* <Ionicons name="wifi" size={18} color="#FFB267" style={styles.wifiIcon} />
+          <Text style={styles.wifiLabel}>Resnet-5G</Text> */}
+>>>>>>> 40d5a3472453dfe77106a0bae13023c8256875a7
         </View>
       </View>
 

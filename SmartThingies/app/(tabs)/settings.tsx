@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,16 +9,29 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { useUser } from '@/contexts/UserContext';
 
 import { useAuth } from '../../context/AuthContext';
 
 
 export default function SettingsScreen() {
+  const {user} = useUser();
   const router = useRouter();
+<<<<<<< HEAD
   const { user } = useAuth();
 
   console.log('User from context:', user);
 
+=======
+  // Ensure user is logged in.
+  useEffect(() => { 
+    if (!user) {
+      requestAnimationFrame(() => {
+        router.replace('/login');
+      })
+    }
+  })
+>>>>>>> 40d5a3472453dfe77106a0bae13023c8256875a7
   return (
     <View style={styles.container}>
       {/* Header */}
@@ -37,9 +50,15 @@ export default function SettingsScreen() {
             source={require('@/assets/images/user-placeholder.png')} // Replace with real user image
             style={styles.avatar}
           />
+<<<<<<< HEAD
           <View>                   
             <Text style={styles.userName}>{user?.full_name || 'Guest'}</Text>
             <Text style={styles.userEmail}>{user?.email || 'noemail@unknown.com'}</Text>
+=======
+          <View>
+            <Text style={styles.userName}>John Doe</Text>
+            <Text style={styles.userEmail}>{user?.email}</Text>
+>>>>>>> 40d5a3472453dfe77106a0bae13023c8256875a7
           </View>
         </View>
 

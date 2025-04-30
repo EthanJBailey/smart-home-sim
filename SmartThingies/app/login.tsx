@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Platform, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useUser } from '@/contexts/UserContext';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '../context/AuthContext';
@@ -12,7 +13,7 @@ export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
-
+  const {setUser} = useUser();
   const handleLogin = async () => {
     if (!email.trim() || !password.trim()) {
       Alert.alert('Missing fields', 'Please enter your email and password.');
@@ -34,9 +35,16 @@ export default function LoginScreen() {
         await AsyncStorage.setItem('userEmail', email);
       }
       await AsyncStorage.setItem('isLoggedIn', 'true');
+<<<<<<< HEAD
   
       // ✅ Navigate to tabs
       router.replace('/(tabs)');
+=======
+      setUser({email}); // This is where we need to change user based on database returns
+      requestAnimationFrame(() => {
+        router.replace('/(tabs)');
+      })
+>>>>>>> 40d5a3472453dfe77106a0bae13023c8256875a7
     } catch (error: any) {
       console.error(error);
       Alert.alert('Login Failed', error.response?.data?.detail || 'An error occurred.');
@@ -45,7 +53,6 @@ export default function LoginScreen() {
   
   return (
     <View style={styles.container}>
-      <Text style={styles.wifi}>Wifi: Resnet-5G</Text>
 
       <Text style={styles.title}>Welcome to SmartThingies</Text>
       <Text style={styles.subtitle}>Sign in or create your profile below</Text>

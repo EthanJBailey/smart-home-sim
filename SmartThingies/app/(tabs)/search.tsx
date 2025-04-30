@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import React, { useEffect, useState } from 'react';
+=======
+import React, { useState, useEffect } from 'react';
+>>>>>>> 40d5a3472453dfe77106a0bae13023c8256875a7
 import {
   View,
   Text,
@@ -12,8 +16,13 @@ import {
   Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+<<<<<<< HEAD
 import { Picker } from '@react-native-picker/picker';
 import axios from 'axios';
+=======
+import { useUser } from '@/contexts/UserContext';
+import { useRouter } from 'expo-router';
+>>>>>>> 40d5a3472453dfe77106a0bae13023c8256875a7
 
 // Image map using static require
 const imageMap = {
@@ -25,6 +34,7 @@ const imageMap = {
 
 export default function SearchScreen() {
   const [query, setQuery] = useState('');
+<<<<<<< HEAD
   const [devices, setDevices] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -78,10 +88,22 @@ export default function SearchScreen() {
       Alert.alert('Error', 'Could not add device.');
     }
   };
+=======
+  const router = useRouter();
+  const {user} = useUser();
+  useEffect(() => {
+      if (!user) {
+        requestAnimationFrame(() => {
+          router.replace('/login');
+        })
+      }
+    })
+>>>>>>> 40d5a3472453dfe77106a0bae13023c8256875a7
 
   return (
     <View style={styles.container}>
       <View style={styles.headerWrapper}>
+<<<<<<< HEAD
         <Text style={styles.title}>Search</Text>
         <View style={styles.rightInfo}>
           <Text style={styles.deviceCount}>{devices.length - 1} devices</Text>
@@ -89,6 +111,15 @@ export default function SearchScreen() {
           <Text style={styles.wifiLabel}>Resnet-5G</Text>
         </View>
       </View>
+=======
+              <Text style={styles.title}>Search</Text>
+              <View style={styles.rightInfo}>
+                <Text style={styles.deviceCount}>6 devices</Text>
+                {/* <Ionicons name="wifi" size={18} color="#FFB267" style={styles.wifiIcon} />
+                <Text style={styles.wifiLabel}>Resnet-5G</Text> */}
+              </View>
+            </View>
+>>>>>>> 40d5a3472453dfe77106a0bae13023c8256875a7
 
       <View style={styles.searchBar}>
         <Ionicons name="search" size={20} color="#FFB267" />

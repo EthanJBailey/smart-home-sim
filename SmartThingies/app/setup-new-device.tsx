@@ -26,7 +26,6 @@ export default function AddDeviceScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.wifi}>Wifi: Resnet-5G</Text>
 
       <View style={styles.card}>
         <Image
