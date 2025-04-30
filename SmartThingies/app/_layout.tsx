@@ -60,34 +60,11 @@ export default function RootLayout() {
   }
 
   return (
-<<<<<<< HEAD
     <AuthProvider>
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
         <RootNavigator />
         <StatusBar style="auto" />
       </ThemeProvider>
     </AuthProvider>
-=======
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <UserProvider>
-      {/* Stack Navigator */}
-      <Stack
-        screenOptions={{
-          headerShown: false,
-        }}
-        initialRouteName="login" // <<< 🔥 THIS IS THE KEY
-      >
-        <Stack.Screen name="login" />
-        <Stack.Screen name="register" />
-        <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="setup-new-home" />
-        <Stack.Screen name="setup-new-room" />
-        <Stack.Screen name="setup-new-device" />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      <StatusBar style="auto" />
-      </UserProvider>
-    </ThemeProvider>
->>>>>>> 40d5a3472453dfe77106a0bae13023c8256875a7
   );
 }

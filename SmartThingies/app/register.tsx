@@ -2,12 +2,9 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Platform, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-<<<<<<< HEAD
 import { useAuth } from '../context/AuthContext'; // Adjust path as needed
 
-=======
-import { useUser } from '@/contexts/UserContext';
->>>>>>> 40d5a3472453dfe77106a0bae13023c8256875a7
+// import { useUser } from '@/contexts/UserContext';
 
 export default function RegisterScreen() {
   const router = useRouter();
@@ -15,7 +12,7 @@ export default function RegisterScreen() {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { setUser } = useUser();
+  // const { setUser } = useUser();
 
   const handleRegister = async () => {
     if (!fullName || !email || !password) {
@@ -54,7 +51,7 @@ export default function RegisterScreen() {
       router.replace('/setup-new-home');
             
       router.replace('/setup-new-home'); // ⬅️ Go to setup-new-home immediately after register
-      setUser({email}); // This will need to be changed upon changing the usercontext!
+      // setUser({email}); // This will need to be changed upon changing the usercontext!
     } catch (error: any) {
       console.error('Error:', error.message);
       Alert.alert('Registration Error', error.message);

@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 import React, { useRef, useState } from 'react';
-=======
-import React, {useEffect} from 'react';
->>>>>>> 40d5a3472453dfe77106a0bae13023c8256875a7
 import {
   View,
   Text,
@@ -16,8 +12,6 @@ import {
   findNodeHandle
 } from 'react-native';
 import Slider from '@react-native-community/slider';
-import { useRouter } from 'expo-router';
-import { useUser } from '@/contexts/UserContext';
 import { MaterialCommunityIcons, Feather } from '@expo/vector-icons';
 import { useScrollTo } from 'react-native-scroll-to-hook';
 
@@ -66,7 +60,6 @@ const notifications = [
 ];
 
 export default function HomeScreen() {
-<<<<<<< HEAD
   const [selectedRoom, setSelectedRoom] = useState('Home');
   const scrollRef = useRef<ScrollView>(null);
   const notificationRef = useRef<View>(null);
@@ -85,18 +78,6 @@ export default function HomeScreen() {
 
   const devices = mockDevices[selectedRoom] || [];
 
-=======
-  const router = useRouter();
-  const {user} = useUser();
-  // Ensure user is logged in.
-  useEffect(() => {
-      if (!user) {
-        requestAnimationFrame(() => {
-          router.replace('/login');
-        })
-      }
-    })
->>>>>>> 40d5a3472453dfe77106a0bae13023c8256875a7
   return (
     <ScrollView ref={scrollRef} style={styles.container}>
       <ImageBackground
