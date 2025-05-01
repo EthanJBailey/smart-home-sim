@@ -1,4 +1,5 @@
-import React, { useRef, useState } from 'react';
+
+import React, { useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -7,62 +8,35 @@ import {
   ScrollView,
   TouchableOpacity,
   Switch,
-  Pressable,
-  Animated,
-  findNodeHandle
+  findNodeHandle,
 } from 'react-native';
 import Slider from '@react-native-community/slider';
 import { MaterialCommunityIcons, Feather } from '@expo/vector-icons';
-import { useScrollTo } from 'react-native-scroll-to-hook';
 
-const rooms = ['Home', 'Bedroom', 'Living Room'];
-
-const mockDevices = {
-  Home: [
-    {
-      id: 1,
-      name: 'Humidifier',
-      icon: 'air-humidifier',
-      value: '36%',
-      mode: 'Mode 2',
-    },
-    {
-      id: 2,
-      name: 'Air Purifier',
-      icon: 'air-purifier',
-      value: '73%',
-      mode: 'On',
-    },
-  ],
-  Bedroom: [
-    {
-      id: 3,
-      name: 'Ceiling Fan',
-      icon: 'fan',
-      value: 'Medium',
-      mode: 'On',
-    },
-  ],
-  'Living Room': [
-    {
-      id: 4,
-      name: 'Lamp',
-      icon: 'floor-lamp',
-      value: '45%',
-      mode: 'Dim',
-    },
-  ],
-};
-
-const notifications = [
-  { id: 1, message: 'Replace filter in Humidifier' },
-  { id: 2, message: 'Air Purifier needs maintenance' },
-];
+const ROOMS = ['Home', 'Bedroom', 'Living Room'];
 
 export default function HomeScreen() {
   const [selectedRoom, setSelectedRoom] = useState('Home');
+  const [devices, setDevices] = useState([]);
+  const [loading, setLoading] = useState(true);
   const scrollRef = useRef<ScrollView>(null);
   const notificationRef = useRef<View>(null);
+
+  useEffect(() => {
+    const fetchDevices = async () => {
+      try {
+        const response = await fetch('http://146.190.130.85:8000/get-devices');
+        const data = await response.json();
+        setDevices(data);
+      } catch (error) {
+        console.error('Failed to fetch devices:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDevices();
+  }, []);
 
   const handleBellPress = () => {
     if (notificationRef.current && scrollRef.current) {
@@ -76,7 +50,14 @@ export default function HomeScreen() {
     }
   };
 
-  const devices = mockDevices[selectedRoom] || [];
+  const roomDevices = devices.filter(
+    (device) => device.room_name === selectedRoom
+  );
+
+  const notifications = [
+    { id: 1, message: 'Replace filter in Humidifier' },
+    { id: 2, message: 'Air Purifier needs maintenance' },
+  ];
 
   return (
     <ScrollView ref={scrollRef} style={styles.container}>
@@ -86,7 +67,7 @@ export default function HomeScreen() {
       >
         <View style={styles.topBar}>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.roomTabs}>
-            {rooms.map((room) => (
+            {ROOMS.map((room) => (
               <TouchableOpacity key={room} onPress={() => setSelectedRoom(room)}>
                 <Text
                   style={[
@@ -107,21 +88,27 @@ export default function HomeScreen() {
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>{selectedRoom} Devices</Text>
-        <View style={styles.deviceGrid}>
-          {devices.map((device) => (
-            <View key={device.id} style={styles.deviceCard}>
-              <View style={styles.iconRow}>
-                <MaterialCommunityIcons name={device.icon} size={24} color="#FFB267" />
-                <Text style={styles.deviceTitle}>{device.value}</Text>
+        {loading ? (
+          <Text style={styles.loadingText}>Loading devices...</Text>
+        ) : roomDevices.length === 0 ? (
+          <Text style={styles.loadingText}>No devices found in this room.</Text>
+        ) : (
+          <View style={styles.deviceGrid}>
+            {roomDevices.map((device) => (
+              <View key={device.id} style={styles.deviceCard}>
+                <View style={styles.iconRow}>
+                  <MaterialCommunityIcons name={device.icon || 'cog'} size={24} color="#FFB267" />
+                  <Text style={styles.deviceTitle}>{device.value || '--'}</Text>
+                </View>
+                <Text style={styles.deviceSubtitle}>{device.name}</Text>
+                <View style={styles.switchRow}>
+                  <Text style={styles.modeLabel}>{device.mode || 'Unknown'}</Text>
+                  <Switch value={true} thumbColor="#FFB267" />
+                </View>
               </View>
-              <Text style={styles.deviceSubtitle}>{device.name}</Text>
-              <View style={styles.switchRow}>
-                <Text style={styles.modeLabel}>{device.mode}</Text>
-                <Switch value={true} thumbColor="#FFB267" />
-              </View>
-            </View>
-          ))}
-        </View>
+            ))}
+          </View>
+        )}
       </View>
 
       <View style={styles.section}>
@@ -131,7 +118,6 @@ export default function HomeScreen() {
           <Text style={styles.sliderLabel}>Main Light</Text>
         </View>
         <Slider minimumTrackTintColor="#FFB267" maximumTrackTintColor="#393535" />
-
         <View style={styles.sliderRow}>
           <Feather name="moon" size={20} color="#FFB267" />
           <Text style={styles.sliderLabel}>Floor Lamp</Text>
@@ -171,7 +157,6 @@ const styles = StyleSheet.create({
   },
   roomTabs: {
     flexDirection: 'row',
-    gap: 12,
   },
   tab: {
     color: '#FFFFFFAA',
@@ -194,6 +179,11 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 12,
+  },
+  loadingText: {
+    color: '#FFFFFFAA',
+    fontStyle: 'italic',
+    paddingVertical: 8,
   },
   deviceGrid: {
     flexDirection: 'row',
@@ -255,7 +245,8 @@ const styles = StyleSheet.create({
 });
 
 
-// import React, { useEffect, useRef, useState } from 'react';
+
+// import React, { useRef, useState } from 'react';
 // import {
 //   View,
 //   Text,
@@ -264,35 +255,62 @@ const styles = StyleSheet.create({
 //   ScrollView,
 //   TouchableOpacity,
 //   Switch,
-//   findNodeHandle,
+//   Pressable,
+//   Animated,
+//   findNodeHandle
 // } from 'react-native';
 // import Slider from '@react-native-community/slider';
 // import { MaterialCommunityIcons, Feather } from '@expo/vector-icons';
+// import { useScrollTo } from 'react-native-scroll-to-hook';
 
-// const ROOMS = ['Home', 'Bedroom', 'Living Room'];
+// const rooms = ['Home', 'Bedroom', 'Living Room'];
+
+// const mockDevices = {
+//   Home: [
+//     {
+//       id: 1,
+//       name: 'Humidifier',
+//       icon: 'air-humidifier',
+//       value: '36%',
+//       mode: 'Mode 2',
+//     },
+//     {
+//       id: 2,
+//       name: 'Air Purifier',
+//       icon: 'air-purifier',
+//       value: '73%',
+//       mode: 'On',
+//     },
+//   ],
+//   Bedroom: [
+//     {
+//       id: 3,
+//       name: 'Ceiling Fan',
+//       icon: 'fan',
+//       value: 'Medium',
+//       mode: 'On',
+//     },
+//   ],
+//   'Living Room': [
+//     {
+//       id: 4,
+//       name: 'Lamp',
+//       icon: 'floor-lamp',
+//       value: '45%',
+//       mode: 'Dim',
+//     },
+//   ],
+// };
+
+// const notifications = [
+//   { id: 1, message: 'Replace filter in Humidifier' },
+//   { id: 2, message: 'Air Purifier needs maintenance' },
+// ];
 
 // export default function HomeScreen() {
 //   const [selectedRoom, setSelectedRoom] = useState('Home');
-//   const [devices, setDevices] = useState([]);
-//   const [loading, setLoading] = useState(true);
 //   const scrollRef = useRef<ScrollView>(null);
 //   const notificationRef = useRef<View>(null);
-
-//   useEffect(() => {
-//     const fetchDevices = async () => {
-//       try {
-//         const response = await fetch('http://146.190.130.85:8000/get-devices');
-//         const data = await response.json();
-//         setDevices(data);
-//       } catch (error) {
-//         console.error('Failed to fetch devices:', error);
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
-
-//     fetchDevices();
-//   }, []);
 
 //   const handleBellPress = () => {
 //     if (notificationRef.current && scrollRef.current) {
@@ -306,14 +324,7 @@ const styles = StyleSheet.create({
 //     }
 //   };
 
-//   const roomDevices = devices.filter(
-//     (device) => device.room_name === selectedRoom
-//   );
-
-//   const notifications = [
-//     { id: 1, message: 'Replace filter in Humidifier' },
-//     { id: 2, message: 'Air Purifier needs maintenance' },
-//   ];
+//   const devices = mockDevices[selectedRoom] || [];
 
 //   return (
 //     <ScrollView ref={scrollRef} style={styles.container}>
@@ -323,7 +334,7 @@ const styles = StyleSheet.create({
 //       >
 //         <View style={styles.topBar}>
 //           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.roomTabs}>
-//             {ROOMS.map((room) => (
+//             {rooms.map((room) => (
 //               <TouchableOpacity key={room} onPress={() => setSelectedRoom(room)}>
 //                 <Text
 //                   style={[
@@ -344,27 +355,21 @@ const styles = StyleSheet.create({
 
 //       <View style={styles.section}>
 //         <Text style={styles.sectionTitle}>{selectedRoom} Devices</Text>
-//         {loading ? (
-//           <Text style={styles.loadingText}>Loading devices...</Text>
-//         ) : roomDevices.length === 0 ? (
-//           <Text style={styles.loadingText}>No devices found in this room.</Text>
-//         ) : (
-//           <View style={styles.deviceGrid}>
-//             {roomDevices.map((device) => (
-//               <View key={device.id} style={styles.deviceCard}>
-//                 <View style={styles.iconRow}>
-//                   <MaterialCommunityIcons name={device.icon || 'cog'} size={24} color="#FFB267" />
-//                   <Text style={styles.deviceTitle}>{device.value || '--'}</Text>
-//                 </View>
-//                 <Text style={styles.deviceSubtitle}>{device.name}</Text>
-//                 <View style={styles.switchRow}>
-//                   <Text style={styles.modeLabel}>{device.mode || 'Unknown'}</Text>
-//                   <Switch value={true} thumbColor="#FFB267" />
-//                 </View>
+//         <View style={styles.deviceGrid}>
+//           {devices.map((device) => (
+//             <View key={device.id} style={styles.deviceCard}>
+//               <View style={styles.iconRow}>
+//                 <MaterialCommunityIcons name={device.icon} size={24} color="#FFB267" />
+//                 <Text style={styles.deviceTitle}>{device.value}</Text>
 //               </View>
-//             ))}
-//           </View>
-//         )}
+//               <Text style={styles.deviceSubtitle}>{device.name}</Text>
+//               <View style={styles.switchRow}>
+//                 <Text style={styles.modeLabel}>{device.mode}</Text>
+//                 <Switch value={true} thumbColor="#FFB267" />
+//               </View>
+//             </View>
+//           ))}
+//         </View>
 //       </View>
 
 //       <View style={styles.section}>
@@ -374,6 +379,7 @@ const styles = StyleSheet.create({
 //           <Text style={styles.sliderLabel}>Main Light</Text>
 //         </View>
 //         <Slider minimumTrackTintColor="#FFB267" maximumTrackTintColor="#393535" />
+
 //         <View style={styles.sliderRow}>
 //           <Feather name="moon" size={20} color="#FFB267" />
 //           <Text style={styles.sliderLabel}>Floor Lamp</Text>
@@ -413,6 +419,7 @@ const styles = StyleSheet.create({
 //   },
 //   roomTabs: {
 //     flexDirection: 'row',
+//     gap: 12,
 //   },
 //   tab: {
 //     color: '#FFFFFFAA',
@@ -435,11 +442,6 @@ const styles = StyleSheet.create({
 //     fontSize: 20,
 //     fontWeight: 'bold',
 //     marginBottom: 12,
-//   },
-//   loadingText: {
-//     color: '#FFFFFFAA',
-//     fontStyle: 'italic',
-//     paddingVertical: 8,
 //   },
 //   deviceGrid: {
 //     flexDirection: 'row',

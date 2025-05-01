@@ -10,6 +10,8 @@ import {
   Modal,
   Pressable,
   Alert,
+  Keyboard,
+  ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
@@ -23,12 +25,24 @@ const imageMap = {
   '/assets/images/unknown.png': require('@/assets/images/humidifier.png'),
 };
 
+const deviceTypes = [
+  { id: 1, name: 'Vacuum cleaner' },
+  { id: 2, name: 'Smart bulb' },
+  { id: 3, name: 'Humidifier' },
+  { id: 7, name: 'Unknown' },
+];
+
 export default function SearchScreen() {
   const [query, setQuery] = useState('');
   const [devices, setDevices] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [newDevice, setNewDevice] = useState({ name: '', type_id: '', room_id: '' });
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [selectedDevice, setSelectedDevice] = useState(null);
+  const [selectedRoom, setSelectedRoom] = useState('');
+  const [renamedDevice, setRenamedDevice] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const fetchDevices = async () => {
     try {
@@ -37,7 +51,6 @@ export default function SearchScreen() {
         ...device,
         image: imageMap[device.image] || imageMap['/assets/images/unknown.png'],
       }));
-
       const limitedDevices = mappedDevices.slice(0, 5);
       setDevices([...limitedDevices, { id: 'manual' }]);
     } catch (err) {
@@ -49,20 +62,12 @@ export default function SearchScreen() {
     fetchDevices();
   }, [query]);
 
-  const handleDevicePress = async (device) => {
+  const handleDevicePress = (device) => {
     if (device.id !== 'manual') {
-      try {
-        await axios.post('http://146.190.130.85:8000/create-device', {
-          name: device.name,
-          type_id: device.type_id,
-          room_id: device.room_id || 1,
-        });
-        Alert.alert('Success', `${device.name} has been added.`);
-        fetchDevices();
-      } catch (err) {
-        Alert.alert('Error', 'Could not add device.');
-        console.error('Add device error:', err);
-      }
+      setSelectedDevice(device);
+      setRenamedDevice(device.name);
+      setSelectedRoom('');
+      setShowConfirmModal(true);
     } else {
       setShowAddModal(true);
     }
@@ -70,14 +75,42 @@ export default function SearchScreen() {
 
   const handleAddDevice = async () => {
     try {
+      Keyboard.dismiss();
+      setLoading(true);
       await axios.post('http://146.190.130.85:8000/create-device', newDevice);
       setShowAddModal(false);
       setNewDevice({ name: '', type_id: '', room_id: '' });
       fetchDevices();
     } catch (err) {
       Alert.alert('Error', 'Could not add device.');
+    } finally {
+      setLoading(false);
     }
   };
+
+  const handleConfirmAddDevice = async () => {
+    try {
+      if (!selectedDevice || !selectedRoom) return;
+      Keyboard.dismiss();
+      setLoading(true);
+      const payload = {
+        name: renamedDevice || selectedDevice.name || 'Unnamed Device',
+        type_id: Number(selectedDevice.type_id) || 7,
+        room_id: Number(selectedRoom),
+      };
+      await axios.post('http://146.190.130.85:8000/create-device', payload);
+      setShowConfirmModal(false);
+      Alert.alert('Success', `${renamedDevice} has been added.`);
+      fetchDevices();
+    } catch (err) {
+      Alert.alert('Error', 'Could not add device.');
+      console.error('Confirm add error:', err?.response?.data || err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const selectedType = deviceTypes.find((t) => t.id === Number(selectedDevice?.type_id));
 
   return (
     <View style={styles.container}>
@@ -90,15 +123,21 @@ export default function SearchScreen() {
         </View>
       </View>
 
-      <View style={styles.searchBar}>
-        <Ionicons name="search" size={20} color="#FFB267" />
-        <TextInput
-          placeholder="Search devices or rooms..."
-          placeholderTextColor="#888"
-          style={styles.input}
-          value={query}
-          onChangeText={setQuery}
-        />
+      <View style={styles.searchRow}>
+        <View style={styles.searchBar}>
+          <Ionicons name="search" size={20} color="#FFB267" />
+          <TextInput
+            placeholder="Search devices or rooms..."
+            placeholderTextColor="#888"
+            style={styles.input}
+            value={query}
+            onChangeText={setQuery}
+          />
+        </View>
+        <TouchableOpacity onPress={fetchDevices} style={styles.refreshButton}>
+          <Ionicons name="refresh" size={16} color="#211D1D" />
+          <Text style={styles.refreshText}>Refresh</Text>
+        </TouchableOpacity>
       </View>
 
       <FlatList
@@ -106,26 +145,22 @@ export default function SearchScreen() {
         numColumns={2}
         keyExtractor={(item) => item.id.toString()}
         columnWrapperStyle={styles.row}
-        contentContainerStyle={{ paddingBottom: 20 }}
-        renderItem={({ item }) => {
-          if (item.id === 'manual') {
-            return (
-              <TouchableOpacity style={styles.manualCard} onPress={() => setShowAddModal(true)}>
-                <Ionicons name="wifi-outline" size={28} color="#FFB267" />
-                <Text style={styles.deviceName}>Device not found?</Text>
-                <Text style={styles.manualText}>Select manually</Text>
-              </TouchableOpacity>
-            );
-          }
-
-          return (
+        contentContainerStyle={{ paddingBottom: 100 }}
+        renderItem={({ item }) => (
+          item.id === 'manual' ? (
+            <TouchableOpacity style={styles.manualCard} onPress={() => setShowAddModal(true)}>
+              <Ionicons name="wifi-outline" size={28} color="#FFB267" />
+              <Text style={styles.deviceName}>Device not found?</Text>
+              <Text style={styles.manualText}>Select manually</Text>
+            </TouchableOpacity>
+          ) : (
             <TouchableOpacity style={styles.deviceCard} onPress={() => handleDevicePress(item)}>
               <Image source={item.image} style={styles.deviceImage} />
               <Text style={styles.deviceName}>{item.name}</Text>
               <Text style={styles.deviceType}>{item.type}</Text>
             </TouchableOpacity>
-          );
-        }}
+          )
+        )}
       />
 
       <TouchableOpacity style={styles.addButton} onPress={() => setShowAddModal(true)}>
@@ -144,7 +179,6 @@ export default function SearchScreen() {
               value={newDevice.name}
               onChangeText={(text) => setNewDevice({ ...newDevice, name: text })}
             />
-
 
             <Picker
               selectedValue={newDevice.type_id}
@@ -169,15 +203,74 @@ export default function SearchScreen() {
               <Picker.Item label="Dining Room" value={4} />
             </Picker>
 
-            <Pressable style={modalStyles.modalBtn} onPress={handleAddDevice}>
-              <Text>Add</Text>
+            <Pressable style={modalStyles.modalBtn} onPress={handleAddDevice} disabled={loading}>
+              {loading ? <ActivityIndicator color="#211D1D" /> : <Text>Add</Text>}
             </Pressable>
+
             <Pressable style={modalStyles.closeBtn} onPress={() => setShowAddModal(false)}>
               <Text style={{ color: '#fff' }}>Cancel</Text>
             </Pressable>
           </View>
         </View>
       </Modal>
+
+      {selectedDevice && (
+        <Modal transparent={true} visible={showConfirmModal} animationType="fade">
+          <View style={modalStyles.overlay}>
+            <View style={modalStyles.modalView}>
+              <Text style={styles.title}>Confirm Device</Text>
+
+              <TextInput
+                placeholder="Rename Device"
+                placeholderTextColor="#888"
+                style={modalStyles.modalInput}
+                value={renamedDevice}
+                onChangeText={setRenamedDevice}
+              />
+
+              <Picker
+                selectedValue={selectedDevice?.type_id || 7}
+                enabled={false}
+                style={{
+                  color: '#fff',
+                  backgroundColor: '#393535',
+                  borderRadius: 12,
+                  width: '100%',
+                  marginBottom: 10,
+                }}
+              >
+                {deviceTypes.map((type) => (
+                  <Picker.Item key={type.id} label={type.name} value={type.id} />
+                ))}
+              </Picker>
+
+
+              <Picker
+                selectedValue={selectedRoom}
+                onValueChange={(value) => setSelectedRoom(value)}
+                style={{ color: '#fff', backgroundColor: '#393535', borderRadius: 12, width: '100%' }}
+              >
+                <Picker.Item label="Select Room" value="" />
+                <Picker.Item label="Living Room" value={2} />
+                <Picker.Item label="Bedroom" value={3} />
+                <Picker.Item label="Dining Room" value={4} />
+              </Picker>
+
+              <Pressable
+                style={[modalStyles.modalBtn, { opacity: selectedRoom ? 1 : 0.5 }]}
+                disabled={!selectedRoom || loading}
+                onPress={handleConfirmAddDevice}
+              >
+                {loading ? <ActivityIndicator color="#211D1D" /> : <Text>Add Device</Text>}
+              </Pressable>
+
+              <Pressable style={modalStyles.closeBtn} onPress={() => setShowConfirmModal(false)}>
+                <Text style={{ color: '#fff' }}>Cancel</Text>
+              </Pressable>
+            </View>
+          </View>
+        </Modal>
+      )}
     </View>
   );
 }
@@ -254,6 +347,12 @@ const styles = StyleSheet.create({
   wifiLabel: {
     color: '#FFFFFF',
   },
+  searchRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -261,8 +360,10 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingHorizontal: 12,
     paddingVertical: 10,
-    marginBottom: 24,
+    flex: 1,
+    marginRight: 8,
   },
+  
   input: {
     color: '#FFFFFF',
     marginLeft: 10,
@@ -327,5 +428,20 @@ const styles = StyleSheet.create({
     color: '#211D1D',
     fontWeight: 'bold',
     fontSize: 16,
+  },
+
+  refreshButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFB267',
+    paddingHorizontal: 14,
+    borderRadius: 12,
+    height: 58,
+  },
+  
+  refreshText: {
+    marginLeft: 6,
+    color: '#211D1D',
+    fontWeight: 'bold',
   },
 });
