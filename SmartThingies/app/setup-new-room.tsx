@@ -9,23 +9,54 @@ import {
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Picker } from '@react-native-picker/picker';
+import { useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function AddRoomScreen() {
-  const { homeName } = useLocalSearchParams();
+  const [homeName, setHomeName] = useState('');
+
+  useEffect(() => {
+    const loadHomeName = async () => {
+      try {
+        const storedHomeName = await AsyncStorage.getItem('homeName');
+        if (storedHomeName) {
+          setHomeName(storedHomeName);
+        }
+      } catch (error) {
+        console.error('Failed to load home name:', error);
+      }
+    };
+
+    loadHomeName();
+  }, []);
+
   const router = useRouter();
   const [selectedRoom, setSelectedRoom] = useState('');
 
-  const handleNext = () => {
+  const handleNext = async () => {
     console.log('Room selected:', selectedRoom);
     if (!selectedRoom) {
-        alert('Please select a room before continuing.');
-        return;
+      alert('Please select a room before continuing.');
+      return;
     } else {
+      try {
+        // Adjust room IDs based on the updated room names
+        const roomId = selectedRoom === 'Living Room' ? 2 : selectedRoom === 'Bedroom' ? 3 : selectedRoom === 'Dining Room' ? 4 : '';
+  
+        if (!roomId) {
+          alert('Invalid room selected.');
+          return;
+        }
+  
+        await AsyncStorage.setItem('selectedRoom', selectedRoom);
         router.replace('/setup-new-device');
+      } catch (error) {
+        console.error('Error saving selected room:', error);
+      }
     }
-    
   };
-
+  
+  
   return (
     <View style={styles.container}>
 
@@ -49,8 +80,7 @@ export default function AddRoomScreen() {
             <Picker.Item label="Select room from list" value="" />
             <Picker.Item label="Living Room" value="Living Room" />
             <Picker.Item label="Bedroom" value="Bedroom" />
-            <Picker.Item label="Kitchen" value="Kitchen" />
-            <Picker.Item label="Office" value="Office" />
+            <Picker.Item label="Dining Room" value="Dining Room" /> {/* Added Dining Room */}
           </Picker>
         </View>
 

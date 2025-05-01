@@ -8,8 +8,12 @@ import {
   TouchableOpacity,
   Modal,
   Alert,
+  TextInput,
+  Pressable,
+  ActivityIndicator
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { Picker } from '@react-native-picker/picker';
 import axios from 'axios';
 
 // Image mapping
@@ -24,6 +28,12 @@ export default function DevicesScreen() {
   const [devices, setDevices] = useState([]);
   const [selectedDevice, setSelectedDevice] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const [updatedDevice, setUpdatedDevice] = useState({
+    name: '',
+    type_id: '',
+    room_id: ''
+  });
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     fetchDevices();
@@ -44,7 +54,27 @@ export default function DevicesScreen() {
 
   const handleDevicePress = (device) => {
     setSelectedDevice(device);
+    setUpdatedDevice({
+      name: device.name,
+      type_id: device.type_id,
+      room_id: device.room_id
+    });
     setModalVisible(true);
+  };
+
+  const handleUpdateDevice = async () => {
+    try {
+      setLoading(true);
+      await axios.put(`http://146.190.130.85:8000/update-device/${selectedDevice.id}`, updatedDevice);
+      setModalVisible(false);
+      fetchDevices();
+      Alert.alert('Success', 'Device updated successfully!');
+    } catch (error) {
+      console.error('Error updating device:', error);
+      Alert.alert('Error', 'Could not update the device.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleDelete = async () => {
@@ -58,7 +88,6 @@ export default function DevicesScreen() {
       console.error('Error deleting device:', error);
     }
   };
-  
 
   return (
     <View style={styles.container}>
@@ -82,6 +111,9 @@ export default function DevicesScreen() {
             <Image source={item.image} style={styles.image} />
             <Text style={styles.name}>{item.name}</Text>
             <Text style={styles.type}>{item.type}</Text>
+            {item.room_name && (
+              <Text style={styles.room}>{item.room_name}</Text>
+            )}
           </TouchableOpacity>
         )}
       />
@@ -102,27 +134,61 @@ export default function DevicesScreen() {
                   style={[styles.image, { width: 70, height: 70, marginBottom: 16 }]}
                 />
                 <Text style={[styles.name, { fontSize: 18 }]}>{selectedDevice.name}</Text>
-                <Text style={[styles.type, { marginBottom: 16 }]}>{selectedDevice.type}</Text>
+                <Text style={[styles.type]}>{selectedDevice.type}</Text>
+                {selectedDevice.room_name && (
+                  <Text style={styles.room}>{selectedDevice.room_name}</Text>
+                )}
+                <View style={{ marginBottom: 16 }} />
 
-                <TouchableOpacity
-                  style={styles.modalButton}
-                  onPress={() => {
-                    Alert.alert('Edit not yet implemented');
-                  }}
-                >
-                  <Text style={styles.modalButtonText}>Edit</Text>
-                </TouchableOpacity>
+                {/* Edit form */}
+                <TextInput
+                  placeholder="Device Name"
+                  placeholderTextColor="#888"
+                  style={styles.modalInput}
+                  value={updatedDevice.name}
+                  onChangeText={(text) => setUpdatedDevice({ ...updatedDevice, name: text })}
+                />
 
-                <TouchableOpacity style={styles.modalButton} onPress={handleDelete}>
-                  <Text style={styles.modalButtonText}>Delete</Text>
-                </TouchableOpacity>
+              <Picker
+                selectedValue={String(updatedDevice.type_id || '')}
+                onValueChange={(value) => setUpdatedDevice({ ...updatedDevice, type_id: Number(value) })}
+                style={styles.modalPicker}
+                dropdownIconColor="#FFB267"
+              >
+                <Picker.Item label="Select Device Type" value="" />
+                <Picker.Item label="Vacuum cleaner" value="1" />
+                <Picker.Item label="Smart bulb" value="2" />
+                <Picker.Item label="Humidifier" value="3" />
+                <Picker.Item label="Unknown" value="7" />
+              </Picker>
 
-                <TouchableOpacity
+              <Picker
+                selectedValue={String(updatedDevice.room_id || '')}
+                onValueChange={(value) => setUpdatedDevice({ ...updatedDevice, room_id: Number(value) })}
+                style={styles.modalPicker}
+                dropdownIconColor="#FFB267"
+              >
+                <Picker.Item label="Select Room" value="" />
+                <Picker.Item label="Living Room" value="2" />
+                <Picker.Item label="Bedroom" value="3" />
+                <Picker.Item label="Dining Room" value="4" />
+              </Picker>
+
+
+                <Pressable style={styles.modalButton} onPress={handleUpdateDevice} disabled={loading}>
+                  {loading ? <ActivityIndicator color="#211D1D" /> : <Text>Update Device</Text>}
+                </Pressable>
+
+                <Pressable style={styles.deleteBtn} onPress={handleDelete}>
+                  <Text style={styles.deleteBtnText}>Delete Device</Text>
+                </Pressable>
+
+                <Pressable
                   style={[styles.modalButton, { backgroundColor: '#444', marginTop: 8 }]}
                   onPress={() => setModalVisible(false)}
                 >
                   <Text style={[styles.modalButtonText, { color: '#FFF' }]}>Close</Text>
-                </TouchableOpacity>
+                </Pressable>
               </>
             )}
           </View>
@@ -133,7 +199,6 @@ export default function DevicesScreen() {
         <Ionicons name="refresh" size={16} color="#211D1D" />
         <Text style={styles.refreshText}>Refresh</Text>
       </TouchableOpacity>
-
     </View>
   );
 }
@@ -201,6 +266,12 @@ const styles = StyleSheet.create({
     fontSize: 12,
     textAlign: 'center',
   },
+  room: {
+    color: '#AAA',
+    fontSize: 12,
+    marginTop: 2,
+    textAlign: 'center',
+  },
   modalContainer: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.5)',
@@ -225,6 +296,17 @@ const styles = StyleSheet.create({
     color: '#211D1D',
     fontWeight: 'bold',
   },
+  deleteBtn: {
+    backgroundColor: '#D9534F',
+    paddingVertical: 10,
+    paddingHorizontal: 24,
+    borderRadius: 12,
+    marginTop: 10,
+  },
+  deleteBtnText: {
+    color: '#FFF',
+    fontWeight: 'bold',
+  },
   refreshButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -239,6 +321,26 @@ const styles = StyleSheet.create({
     marginLeft: 6,
     color: '#211D1D',
     fontWeight: 'bold',
+  },
+  modalInput: {
+    height: 40,
+    borderColor: '#FFB267',
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    width: '100%',
+    marginBottom: 10,
+    color: '#FFF',
+  },
+  modalPicker: {
+    height: 50,
+    width: '100%',
+    backgroundColor: '#393535',
+    borderRadius: 8,
+    marginBottom: 10,
+    color: '#FFF',
+    paddingHorizontal: 10,
+    justifyContent: 'center',
   },
   
 });

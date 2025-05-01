@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -9,24 +9,109 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Picker } from '@react-native-picker/picker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function AddDeviceScreen() {
   const router = useRouter();
-  const [selectedDevice, setSelectedDevice] = useState('');
+  
+  const [selectedRoom, setSelectedRoom] = useState('');
+  useEffect(() => {
+    const loadSelectedRoom = async () => {
+      try {
+        const storedRoom = await AsyncStorage.getItem('selectedRoom');
+        if (storedRoom) {
+          setSelectedRoom(storedRoom);
+        }
+      } catch (error) {
+        console.error('Failed to load selected room:', error);
+      }
+    };
+  
+    loadSelectedRoom();
+  }, []);
 
-  const handleNext = () => {
+  const [selectedDevice, setSelectedDevice] = useState('');
+  const [homeName, setHomeName] = useState('');
+
+  useEffect(() => {
+    const loadHomeName = async () => {
+      try {
+        const storedHomeName = await AsyncStorage.getItem('homeName');
+        if (storedHomeName) {
+          setHomeName(storedHomeName);
+        }
+      } catch (error) {
+        console.error('Failed to load home name:', error);
+      }
+    };
+
+    loadHomeName();
+  }, []);
+
+  const handleNext = async () => {
     if (!selectedDevice) {
       alert('Please select a device before continuing.');
       return;
     }
-
-    console.log('Device selected:', selectedDevice);
-    router.replace('/(tabs)');
+  
+    try {
+      // Adjust room IDs based on your actual database
+      const roomId = selectedRoom === 'Living Room' ? 2 : selectedRoom === 'Bedroom' ? 3 : selectedRoom === 'Dining Room' ? 4 : '';
+  
+      if (!roomId) {
+        alert('Invalid room selected.');
+        return;
+      }
+  
+      let deviceTypeId;
+  
+      // Map selected device to corresponding device type ID
+      switch (selectedDevice) {
+        case 'Smart bulb':
+          deviceTypeId = 2; // Smart bulb ID
+          break;
+        case 'Vacuum cleaner':
+          deviceTypeId = 1; // Vacuum cleaner ID
+          break;
+        case 'Humidifier':
+          deviceTypeId = 3; // Humidifier ID
+          break;
+        default:
+          deviceTypeId = 7; // Unknown device ID
+          break;
+      }
+  
+      const response = await fetch('http://146.190.130.85:8000/create-device', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({
+          name: selectedDevice,
+          type_id: deviceTypeId,
+          room_id: roomId,
+        }),
+      });
+  
+      const data = await response.json();
+  
+      if (response.ok) {
+        alert('Device added successfully!');
+        console.log('Device added:', data);
+        router.replace('/(tabs)'); // Navigate back to the main tabs
+      } else {
+        alert('Failed to add device.');
+        console.error('Error:', data);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('An error occurred while adding the device.');
+    }
   };
-
+  
   return (
     <View style={styles.container}>
-
       <View style={styles.card}>
         <Image
           source={require('@/assets/images/SmartThingies.png')}
@@ -45,10 +130,11 @@ export default function AddDeviceScreen() {
             dropdownIconColor="#211D1D"
           >
             <Picker.Item label="Select device from list" value="" />
-            <Picker.Item label="Smart Light" value="Smart Light" />
-            <Picker.Item label="Thermostat" value="Thermostat" />
-            <Picker.Item label="Camera" value="Camera" />
-            <Picker.Item label="Smart Plug" value="Smart Plug" />
+            <Picker.Item label="Vacuum cleaner" value="Vacuum cleaner" />
+            <Picker.Item label="Smart bulb" value="Smart bulb" />
+            <Picker.Item label="Humidifier" value="Humidifier" />
+            <Picker.Item label="Unknown" value="Unknown" />
+            
           </Picker>
         </View>
 
@@ -65,6 +151,7 @@ export default function AddDeviceScreen() {
     </View>
   );
 }
+
 const styles = StyleSheet.create({
     container: {
       flex: 1,

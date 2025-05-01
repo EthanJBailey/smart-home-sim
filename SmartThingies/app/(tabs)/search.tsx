@@ -43,6 +43,7 @@ export default function SearchScreen() {
   const [selectedRoom, setSelectedRoom] = useState('');
   const [renamedDevice, setRenamedDevice] = useState('');
   const [loading, setLoading] = useState(false);
+  const [selectedTypeId, setSelectedTypeId] = useState(7); 
 
   const fetchDevices = async () => {
     try {
@@ -67,11 +68,14 @@ export default function SearchScreen() {
       setSelectedDevice(device);
       setRenamedDevice(device.name);
       setSelectedRoom('');
+      const matchingType = deviceTypes.find(type => type.name === device.type);
+      setSelectedTypeId(matchingType ? matchingType.id : 7);
       setShowConfirmModal(true);
     } else {
       setShowAddModal(true);
     }
   };
+
 
   const handleAddDevice = async () => {
     try {
@@ -95,7 +99,7 @@ export default function SearchScreen() {
       setLoading(true);
       const payload = {
         name: renamedDevice || selectedDevice.name || 'Unnamed Device',
-        type_id: Number(selectedDevice.type_id) || 7,
+        type_id: selectedTypeId,
         room_id: Number(selectedRoom),
       };
       await axios.post('http://146.190.130.85:8000/create-device', payload);
@@ -229,8 +233,8 @@ export default function SearchScreen() {
               />
 
               <Picker
-                selectedValue={selectedDevice?.type_id || 7}
-                enabled={false}
+                selectedValue={selectedTypeId}
+                onValueChange={(value) => setSelectedTypeId(value)}
                 style={{
                   color: '#fff',
                   backgroundColor: '#393535',
@@ -243,7 +247,6 @@ export default function SearchScreen() {
                   <Picker.Item key={type.id} label={type.name} value={type.id} />
                 ))}
               </Picker>
-
 
               <Picker
                 selectedValue={selectedRoom}

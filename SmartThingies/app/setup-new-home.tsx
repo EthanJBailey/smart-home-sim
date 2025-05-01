@@ -15,14 +15,44 @@ export default function NameHomeScreen() {
   const [homeName, setHomeName] = useState('');
   const router = useRouter();
 
+  // const handleNext = async () => {
+  //   if (homeName.trim()) {
+  //     try {
+  //       await AsyncStorage.setItem('homeName', homeName); // ✅ must be awaited in an async function
+  //       router.push({
+  //         pathname: '/setup-new-room',
+  //         params: { homeName },
+  //       });
+  //     } catch (error) {
+  //       console.error('Failed to save home name:', error);
+  //       alert('Something went wrong. Please try again.');
+  //     }
+  //   } else {
+  //     alert('Please enter a name for your home.');
+  //   }
+  // };
+
   const handleNext = async () => {
     if (homeName.trim()) {
       try {
-        await AsyncStorage.setItem('homeName', homeName); // ✅ must be awaited in an async function
-        router.push({
-          pathname: '/setup-new-room',
-          params: { homeName },
+        const response = await fetch('http://146.190.130.85:8000/create-home/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+          },
+          body: JSON.stringify({
+            user_id: 3, // replace with actual logged-in user ID if needed
+            home_name: homeName,
+          }),
         });
+  
+        const data = await response.json();
+        if (!response.ok) throw new Error('Failed to create home');
+  
+        await AsyncStorage.setItem('homeId', data.id.toString());
+        await AsyncStorage.setItem('homeName', homeName);
+        router.push('/setup-new-room');
       } catch (error) {
         console.error('Failed to save home name:', error);
         alert('Something went wrong. Please try again.');
@@ -31,6 +61,7 @@ export default function NameHomeScreen() {
       alert('Please enter a name for your home.');
     }
   };
+  
   
   return (
     <View style={styles.container}>
