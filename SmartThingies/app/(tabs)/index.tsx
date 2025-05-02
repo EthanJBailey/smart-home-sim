@@ -12,6 +12,8 @@ import {
 import Slider from '@react-native-community/slider';
 import { MaterialCommunityIcons, Feather } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
+import { useAuth } from '@/context/AuthContext';
+import { useRouter } from 'expo-router';
 
 const ROOMS = ['Living Room', 'Bedroom','Dining Room'];
 
@@ -46,9 +48,16 @@ export default function HomeScreen() {
   const [selectedRoom, setSelectedRoom] = useState('Living Room');
   const [devices, setDevices] = useState([]);
   const [loading, setLoading] = useState(true);
-  
+  const {setUser} = useAuth();
   const scrollRef = useRef<ScrollView>(null);
   const notificationRef = useRef<View>(null);
+  const router = useRouter();
+  const checkUser = () => {
+    if (!setUser) {
+      router.replace("./login");
+    }
+  }
+  
   const fetchDevices = async () => {
     try {
       const response = await fetch('http://146.190.130.85:8000/get-devices');
@@ -62,6 +71,7 @@ export default function HomeScreen() {
   };
   useFocusEffect(
     useCallback(() => {
+      checkUser();
       fetchDevices();
     }, [])
   );
