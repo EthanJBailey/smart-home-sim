@@ -6,7 +6,6 @@ import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { View, ActivityIndicator } from 'react-native';
-import { UserProvider } from '@/contexts/UserContext';
 
 import { AuthProvider, useAuth } from '../context/AuthContext';
 

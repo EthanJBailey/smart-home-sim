@@ -1,5 +1,4 @@
-
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -8,46 +7,69 @@ import {
   ScrollView,
   TouchableOpacity,
   Switch,
-  findNodeHandle,
+  Alert
 } from 'react-native';
 import Slider from '@react-native-community/slider';
 import { MaterialCommunityIcons, Feather } from '@expo/vector-icons';
-import { FullWindowOverlay } from 'react-native-screens';
+import { useFocusEffect } from '@react-navigation/native';
 
-const ROOMS = ['Living Room', 'Kitchen', 'Bedroom'];
+const ROOMS = ['Living Room', 'Bedroom','Dining Room'];
 
 const ROOM_IMAGES: { [key: string]: any } = {
-  Kitchen: require('@/assets/images/kitchen.jpg'),
+  'Dining Room': require('@/assets/images/diningroom.jpg'),
   Bedroom: require('@/assets/images/bedroom.jpg'),
   'Living Room': require('@/assets/images/livingroom.jpg'),
+};
+
+// ADD MORE AS NEEDED
+const DEVICE_TYPE_MAP: {
+  [type: string]: {
+    icon: keyof typeof MaterialCommunityIcons.glyphMap;
+    functionType: string;
+  };
+} = {
+  "vacuum cleaner": {
+    icon: 'vacuum',
+    functionType: 'Clean home autonomously.',
+  },
+  "smart bulb": {
+    icon: 'lightbulb-on-outline',
+    functionType: 'Lighting for room.',
+  },
+  humidifier: {
+    icon: 'air-humidifier',
+    functionType: 'Adjusts humidity of room.',
+  },
 };
 
 export default function HomeScreen() {
   const [selectedRoom, setSelectedRoom] = useState('Living Room');
   const [devices, setDevices] = useState([]);
   const [loading, setLoading] = useState(true);
+  
   const scrollRef = useRef<ScrollView>(null);
   const notificationRef = useRef<View>(null);
-
-  useEffect(() => {
-    const fetchDevices = async () => {
-      try {
-        const response = await fetch('http://146.190.130.85:8000/get-devices');
-        const data = await response.json();
-        setDevices(data);
-        console.log(data);
-      } catch (error) {
-        console.error('Failed to fetch devices:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchDevices();
-  }, []);
-
+  const fetchDevices = async () => {
+    try {
+      const response = await fetch('http://146.190.130.85:8000/get-devices');
+      const data = await response.json();
+      setDevices(data);
+      console.log(data);
+    } catch (error) {
+      console.error('Failed to fetch devices:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  useFocusEffect(
+    useCallback(() => {
+      fetchDevices();
+    }, [])
+  );
   const handleBellPress = () => {
-    if (notificationRef.current && scrollRef.current) {
+    // Temp handle for notifs
+    notifications.forEach(notif => (Alert.alert(notif.message)));
+    /* if (notificationRef.current && scrollRef.current) {
       notificationRef.current.measureLayout(
         findNodeHandle(scrollRef.current),
         (_x, y) => {
@@ -55,7 +77,7 @@ export default function HomeScreen() {
         },
         () => {}
       );
-    }
+    } */
   };
 
   const roomDevices = devices.filter(
@@ -75,24 +97,31 @@ export default function HomeScreen() {
         resizeMode="cover"
       >
         <View style={styles.topBar}>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.roomTabs}>
-            {ROOMS.map((room) => (
-              <TouchableOpacity key={room} onPress={() => setSelectedRoom(room)}>
-                <Text
-                  style={[
-                    styles.tab,
-                    selectedRoom === room && styles.selectedTab,
-                  ]}
-                >
-                  {room}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-          <TouchableOpacity onPress={handleBellPress}>
-            <Feather name="bell" size={24} color="#FFB267" />
-          </TouchableOpacity>
-        </View>
+  <View style={styles.roomTabsContainer}>
+    <ScrollView
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      contentContainerStyle={styles.roomTabsContent}
+    >
+      {ROOMS.map((room) => (
+        <TouchableOpacity key={room} onPress={() => setSelectedRoom(room)}>
+          <Text
+            style={[
+              styles.tab,
+              selectedRoom === room && styles.selectedTab,
+            ]}
+          >
+            {room}
+          </Text>
+        </TouchableOpacity>
+      ))}
+    </ScrollView>
+  </View>
+
+  <TouchableOpacity onPress={handleBellPress} style={styles.bell}>
+    <Feather name="bell" size={24} color="#FFB267" />
+  </TouchableOpacity>
+</View>
       </ImageBackground>
 
       <View style={styles.section}>
@@ -103,7 +132,29 @@ export default function HomeScreen() {
           <Text style={styles.loadingText}>No devices found in this room.</Text>
         ) : (
           <View style={styles.deviceGrid}>
-            {roomDevices.map((device) => (
+            {roomDevices.map((device) => {
+              const deviceType = device.type?.toLowerCase(); // Ensure it's lowercase for matching
+              const info = DEVICE_TYPE_MAP[deviceType] || {
+                icon: 'cog',
+                functionType: 'Unknown',
+              };
+
+              return (
+                <View key={device.id} style={styles.deviceCard}>
+                  <View style={styles.iconRow}>
+                    <MaterialCommunityIcons name={info.icon} size={24} color="#FFB267" />
+                    <Text style={styles.deviceTitle}>{device.value || '--'}</Text>
+                  </View>
+                  <Text style={styles.deviceSubtitle}>{device.name}</Text>
+                  <Text style={styles.functionType}>{info.functionType}</Text>
+                  <View style={styles.switchRow}>
+                    <Text style={styles.modeLabel}>{device.mode || 'Unknown'}</Text>
+                    <Switch value={true} thumbColor="#FFB267" />
+                  </View>
+                </View>
+              );
+            })}
+            {/* {roomDevices.map((device) => (
               <View key={device.id} style={styles.deviceCard}>
                 <View style={styles.iconRow}>
                   <MaterialCommunityIcons name={device.icon || 'cog'} size={24} color="#FFB267" />
@@ -115,7 +166,7 @@ export default function HomeScreen() {
                   <Switch value={true} thumbColor="#FFB267" />
                 </View>
               </View>
-            ))}
+            ))} */}
           </View>
         )}
       </View>
@@ -160,14 +211,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingBottom: 12,
   },
-  topBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
+
   roomTabs: {
     flexDirection: 'row',
-    marginLeft: "20%",
+    paddingLeft: "14%",
+    
   },
   tab: {
     color: '#FFFFFFAA',
@@ -253,6 +301,35 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 16,
   },
+  topBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+  },
+  
+  roomTabsContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  
+  roomTabsContent: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 16,
+  },
+  
+  bell: {
+    marginLeft: 12,
+  },
+  functionType: {
+    color: '#AAA',
+    fontSize: 13,
+    marginBottom: 8,
+  },
+  
 });
 
 

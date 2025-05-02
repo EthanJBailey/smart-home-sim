@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   ScrollView,
   Image,
+  Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -17,7 +18,10 @@ import { useAuth } from '../../context/AuthContext';
 export default function SettingsScreen() {
   const router = useRouter();
   const { user } = useAuth();
-
+  const notifications = [
+    { id: 1, message: 'Replace filter in Humidifier' },
+    { id: 2, message: 'Air Purifier needs maintenance' },
+  ];
   console.log('User from context:', user);
 
   return (
@@ -52,7 +56,9 @@ export default function SettingsScreen() {
             { label: 'Theme', icon: 'color-palette-outline' },
             { label: 'Language', icon: 'globe-outline' },
           ].map((item) => (
-            <TouchableOpacity key={item.label} style={styles.item}>
+            <TouchableOpacity key={item.label} style={styles.item} onPress={item.label === 'Notifications' ? () => {
+              notifications.forEach(notif => (Alert.alert(notif.message)))
+            } : undefined }>
               <Ionicons name={item.icon} size={20} color="#FFB267" style={styles.itemIcon} />
               <Text style={styles.itemLabel}>{item.label}</Text>
               <Ionicons name="chevron-forward" size={18} color="#888" />

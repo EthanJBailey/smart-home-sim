@@ -204,7 +204,7 @@ export default function SearchScreen() {
               <Picker.Item label="Select Room" value="" />
               <Picker.Item label="Living Room" value={2} />
               <Picker.Item label="Bedroom" value={3} />
-              <Picker.Item label="Dining Room" value={4} />
+              <Picker.Item label="Kitchen" value={4} />
             </Picker>
 
             <Pressable style={modalStyles.modalBtn} onPress={handleAddDevice} disabled={loading}>
