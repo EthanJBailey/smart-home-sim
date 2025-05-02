@@ -54,7 +54,6 @@ export default function HomeScreen() {
       const response = await fetch('http://146.190.130.85:8000/get-devices');
       const data = await response.json();
       setDevices(data);
-      console.log(data);
     } catch (error) {
       console.error('Failed to fetch devices:', error);
     } finally {
@@ -96,13 +95,13 @@ export default function HomeScreen() {
         style={styles.headerImage}
         resizeMode="cover"
       >
-        <View style={styles.topBar}>
-  <View style={styles.roomTabsContainer}>
-    <ScrollView
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      contentContainerStyle={styles.roomTabsContent}
-    >
+    <View style={styles.topBar}>
+      <View style={styles.roomTabsContainer}>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.roomTabsContent}
+      >
       {ROOMS.map((room) => (
         <TouchableOpacity key={room} onPress={() => setSelectedRoom(room)}>
           <Text
