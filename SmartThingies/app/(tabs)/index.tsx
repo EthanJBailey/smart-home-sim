@@ -12,11 +12,18 @@ import {
 } from 'react-native';
 import Slider from '@react-native-community/slider';
 import { MaterialCommunityIcons, Feather } from '@expo/vector-icons';
+import { FullWindowOverlay } from 'react-native-screens';
 
-const ROOMS = ['Home', 'Bedroom', 'Living Room'];
+const ROOMS = ['Living Room', 'Kitchen', 'Bedroom'];
+
+const ROOM_IMAGES: { [key: string]: any } = {
+  Kitchen: require('@/assets/images/kitchen.jpg'),
+  Bedroom: require('@/assets/images/bedroom.jpg'),
+  'Living Room': require('@/assets/images/livingroom.jpg'),
+};
 
 export default function HomeScreen() {
-  const [selectedRoom, setSelectedRoom] = useState('Home');
+  const [selectedRoom, setSelectedRoom] = useState('Living Room');
   const [devices, setDevices] = useState([]);
   const [loading, setLoading] = useState(true);
   const scrollRef = useRef<ScrollView>(null);
@@ -28,6 +35,7 @@ export default function HomeScreen() {
         const response = await fetch('http://146.190.130.85:8000/get-devices');
         const data = await response.json();
         setDevices(data);
+        console.log(data);
       } catch (error) {
         console.error('Failed to fetch devices:', error);
       } finally {
@@ -62,8 +70,9 @@ export default function HomeScreen() {
   return (
     <ScrollView ref={scrollRef} style={styles.container}>
       <ImageBackground
-        source={require('@/assets/images/bedroom.jpg')}
+        source={ROOM_IMAGES[selectedRoom] || ROOM_IMAGES.livingroom}
         style={styles.headerImage}
+        resizeMode="cover"
       >
         <View style={styles.topBar}>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.roomTabs}>
@@ -144,9 +153,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#211D1D',
   },
   headerImage: {
-    width: '100%',
+    width: 'auto',
     height: 320,
-    justifyContent: 'flex-end',
+    paddingTop: '10%',
+    justifyContent: "flex-start",
     paddingHorizontal: 16,
     paddingBottom: 12,
   },
@@ -157,6 +167,7 @@ const styles = StyleSheet.create({
   },
   roomTabs: {
     flexDirection: 'row',
+    marginLeft: "20%",
   },
   tab: {
     color: '#FFFFFFAA',
