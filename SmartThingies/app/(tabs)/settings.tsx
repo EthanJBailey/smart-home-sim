@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useUser } from '@/contexts/UserContext';
+import { useDeviceContext } from '@/context/DeviceContext';
 
 import { useAuth } from '../../context/AuthContext';
 
@@ -18,6 +18,7 @@ import { useAuth } from '../../context/AuthContext';
 export default function SettingsScreen() {
   const router = useRouter();
   const { user } = useAuth();
+  const {deviceState, toggleDevice} = useDeviceContext();
   const notifications = [
     { id: 1, message: 'Replace filter in Humidifier' },
     { id: 2, message: 'Air Purifier needs maintenance' },
@@ -73,7 +74,8 @@ export default function SettingsScreen() {
             { label: 'Manage Devices', icon: 'hardware-chip-outline' },
             { label: 'Connected Services', icon: 'link-outline' },
           ].map((item) => (
-            <TouchableOpacity key={item.label} style={styles.item}>
+            <TouchableOpacity key={item.label} style={styles.item} onPress={item.label === 'Manage Devices' ? () => {router.replace('/(tabs)/devices');} : undefined
+            }>
               <Ionicons name={item.icon} size={20} color="#FFB267" style={styles.itemIcon} />
               <Text style={styles.itemLabel}>{item.label}</Text>
               <Ionicons name="chevron-forward" size={18} color="#888" />

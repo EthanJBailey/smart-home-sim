@@ -8,6 +8,8 @@ import { StatusBar } from 'expo-status-bar';
 import { View, ActivityIndicator } from 'react-native';
 
 import { AuthProvider, useAuth } from '../context/AuthContext';
+import { DeviceProvider } from '@/context/DeviceContext';
+import { SliderProvider } from '@/context/SliderContext';
 
 function RootNavigator() {
   const { user } = useAuth();
@@ -60,10 +62,14 @@ export default function RootLayout() {
 
   return (
     <AuthProvider>
-      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-        <RootNavigator />
-        <StatusBar style="auto" />
-      </ThemeProvider>
+      <DeviceProvider>
+        <SliderProvider>
+          <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+            <RootNavigator />
+            <StatusBar style="auto" />
+          </ThemeProvider>
+        </SliderProvider>
+      </DeviceProvider>
     </AuthProvider>
   );
 }

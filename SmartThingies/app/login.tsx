@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Platform, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useUser } from '@/contexts/UserContext';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '../context/AuthContext';
@@ -79,7 +78,7 @@ export default function LoginScreen() {
           </TouchableOpacity>
           <Text style={styles.rememberText}>Remember me</Text>
 
-          <TouchableOpacity style={{ marginLeft: 'auto' }}>
+          <TouchableOpacity style={{ marginLeft: 'auto' }} onPress={() => Alert.alert("Oh no!\nWrite your password down next time!")}>
             <Text style={styles.forgotText}>Forgot Password?</Text>
           </TouchableOpacity>
         </View>

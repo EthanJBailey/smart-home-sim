@@ -9,11 +9,13 @@ import {
   Switch,
   Alert
 } from 'react-native';
+import { useRouter } from 'expo-router';
 import Slider from '@react-native-community/slider';
 import { MaterialCommunityIcons, Feather } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { useAuth } from '@/context/AuthContext';
-import { useRouter } from 'expo-router';
+import { useDeviceContext } from '@/context/DeviceContext';
+import { useSliderContext } from '@/context/SliderContext';
 
 const ROOMS = ['Living Room', 'Bedroom','Dining Room'];
 
@@ -52,12 +54,24 @@ export default function HomeScreen() {
   const scrollRef = useRef<ScrollView>(null);
   const notificationRef = useRef<View>(null);
   const router = useRouter();
+  const {deviceState, toggleDevice} = useDeviceContext();
+  const {
+    mainLightValue,
+    floorLampValue,
+    setMainLightValue,
+    setFloorLampValue,
+  } = useSliderContext();
+  const [tempMainValue, setTempMainValue] = useState(mainLightValue);
+  const [tempFloorValue, setTempFloorValue] = useState(floorLampValue);
+  
+
+  // Ensure user is logged in --> prevents errors
   const checkUser = () => {
     if (!setUser) {
       router.replace("./login");
     }
   }
-  
+    
   const fetchDevices = async () => {
     try {
       const response = await fetch('http://146.190.130.85:8000/get-devices');
@@ -152,14 +166,17 @@ export default function HomeScreen() {
                 <View key={device.id} style={styles.deviceCard}>
                   <View style={styles.iconRow}>
                     <MaterialCommunityIcons name={info.icon} size={24} color="#FFB267" />
-                    <Text style={styles.deviceTitle}>{device.value || '--'}</Text>
+                    <Text style={styles.deviceTitle}>{deviceState[device.id]?.isOn ? 'Running' : 'Standby'}</Text>
                   </View>
                   <Text style={styles.deviceSubtitle}>{device.name}</Text>
                   <Text style={styles.functionType}>{info.functionType}</Text>
                   <View style={styles.switchRow}>
-                    <Text style={styles.modeLabel}>{device.mode || 'Unknown'}</Text>
-                    <Switch value={true} thumbColor="#FFB267" />
-                  </View>
+                    <Text style={styles.modeLabel}>{device.mode || 'Power'}</Text>
+                    <Switch
+                      value={deviceState[device.id]?.isOn || false}
+                      onValueChange={() => toggleDevice(device.id)}
+                      thumbColor={deviceState[device.id]?.isOn ? "#FFB267" : "#888"}/>
+                      </View>
                 </View>
               );
             })}
@@ -186,12 +203,31 @@ export default function HomeScreen() {
           <Feather name="sun" size={20} color="#FFB267" />
           <Text style={styles.sliderLabel}>Main Light</Text>
         </View>
-        <Slider minimumTrackTintColor="#FFB267" maximumTrackTintColor="#393535" />
-        <View style={styles.sliderRow}>
-          <Feather name="moon" size={20} color="#FFB267" />
-          <Text style={styles.sliderLabel}>Floor Lamp</Text>
-        </View>
-        <Slider minimumTrackTintColor="#FFB267" maximumTrackTintColor="#393535" />
+      <Slider
+        onSlidingComplete={(value) => {
+          setMainLightValue(value);
+        }}
+        // Prevent shaking of slider when stuck between 2 steps
+        step={0.05}
+        minimumValue={0}
+        maximumValue={1}
+        minimumTrackTintColor="#FFB267"
+        maximumTrackTintColor="#393535"
+      />
+      <View style={styles.sliderRow}>
+        <Feather name="moon" size={20} color="#FFB267" />
+        <Text style={styles.sliderLabel}>Floor Lamp</Text>
+      </View>
+      <Slider
+        onSlidingComplete={(value) => {
+          setFloorLampValue(value);
+        }}
+        step={0.05}
+        minimumValue={0}
+        maximumValue={1}
+        minimumTrackTintColor="#FFB267"
+        maximumTrackTintColor="#393535"
+      />
       </View>
 
       <View ref={notificationRef} style={styles.section}>
@@ -220,11 +256,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingBottom: 12,
   },
-
   roomTabs: {
     flexDirection: 'row',
     paddingLeft: "14%",
-    
   },
   tab: {
     color: '#FFFFFFAA',
@@ -273,6 +307,8 @@ const styles = StyleSheet.create({
   deviceTitle: {
     color: '#FFB267',
     fontSize: 20,
+    marginLeft: '30%',
+    paddingRight: 20,
     fontWeight: 'bold',
   },
   deviceSubtitle: {
@@ -316,20 +352,17 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
   },
-  
   roomTabsContainer: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  
   roomTabsContent: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     gap: 16,
   },
-  
   bell: {
     marginLeft: 12,
   },
@@ -338,7 +371,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     marginBottom: 8,
   },
-  
 });
 
 
