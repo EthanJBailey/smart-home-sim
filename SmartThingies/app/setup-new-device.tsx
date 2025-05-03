@@ -135,7 +135,7 @@ export default function AddDeviceScreen() {
           >
             {selectedDevice === "" && (
               <Picker.Item
-                label="Select room from list"
+                label="Select device from list"
                 value=""
                 enabled={false}
                 color="#999"
