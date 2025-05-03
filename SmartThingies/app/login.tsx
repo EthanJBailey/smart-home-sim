@@ -1,50 +1,62 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Platform, Alert } from 'react-native';
-import { useRouter } from 'expo-router';
-import axios from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useAuth } from '../context/AuthContext';
-
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Platform,
+  Alert,
+} from "react-native";
+import { useRouter } from "expo-router";
+import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useAuth } from "../context/AuthContext";
 
 export default function LoginScreen() {
   const router = useRouter();
   const { setUser } = useAuth();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const handleLogin = async () => {
     if (!email.trim() || !password.trim()) {
-      Alert.alert('Missing fields', 'Please enter your email and password.');
+      Alert.alert("Missing fields", "Please enter your email and password.");
       return;
     }
     try {
-      const response = await axios.post('http://146.190.130.85:8000/login', { email, password });
-  
-      console.log('Login response data:', response.data);
+      const response = await axios.post("http://146.190.130.85:8000/login", {
+        email,
+        password,
+      });
+
+      console.log("Login response data:", response.data);
 
       // ✅ Save user in context
       setUser({
         full_name: response.data.user.full_name,
         email: response.data.user.email,
-      });   
+      });
 
       // ✅ Store login info if needed
       if (rememberMe) {
-        await AsyncStorage.setItem('userEmail', email);
+        await AsyncStorage.setItem("userEmail", email);
       }
-      await AsyncStorage.setItem('isLoggedIn', 'true');
-  
+      await AsyncStorage.setItem("isLoggedIn", "true");
+
       // ✅ Navigate to tabs
-      router.replace('/(tabs)');
+      router.replace("/(tabs)");
     } catch (error: any) {
       console.error(error);
-      Alert.alert('Login Failed', error.response?.data?.detail || 'An error occurred.');
+      Alert.alert(
+        "Login Failed",
+        error.response?.data?.detail || "An error occurred."
+      );
     }
   };
-  
+
   return (
     <View style={styles.container}>
-
       <Text style={styles.title}>Welcome to SmartThingies</Text>
       <Text style={styles.subtitle}>Sign in or create your profile below</Text>
 
@@ -78,7 +90,12 @@ export default function LoginScreen() {
           </TouchableOpacity>
           <Text style={styles.rememberText}>Remember me</Text>
 
-          <TouchableOpacity style={{ marginLeft: 'auto' }} onPress={() => Alert.alert("Oh no!\nWrite your password down next time!")}>
+          <TouchableOpacity
+            style={{ marginLeft: "auto" }}
+            onPress={() =>
+              Alert.alert("Oh no!\nWrite your password down next time!")
+            }
+          >
             <Text style={styles.forgotText}>Forgot Password?</Text>
           </TouchableOpacity>
         </View>
@@ -87,7 +104,10 @@ export default function LoginScreen() {
           <Text style={styles.loginText}>Login</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.signupButton} onPress={() => router.push('/register')}>
+        <TouchableOpacity
+          style={styles.signupButton}
+          onPress={() => router.push("/register")}
+        >
           <Text style={styles.signupText}>Sign Up</Text>
         </TouchableOpacity>
       </View>
@@ -98,104 +118,104 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#211D1D',
+    backgroundColor: "#211D1D",
     padding: 24,
-    justifyContent: 'center',
+    justifyContent: "center",
   },
   wifi: {
-    position: 'absolute',
-    top: Platform.OS === 'ios' ? 60 : 40,
+    position: "absolute",
+    top: Platform.OS === "ios" ? 60 : 40,
     left: 24,
-    color: '#AAA',
+    color: "#AAA",
     fontSize: 12,
   },
   title: {
     fontSize: 22,
-    color: '#FFB267',
-    fontWeight: '600',
+    color: "#FFB267",
+    fontWeight: "600",
     marginBottom: 4,
-    textAlign: 'center',
+    textAlign: "center",
   },
   subtitle: {
     fontSize: 14,
-    color: '#DDD',
+    color: "#DDD",
     marginBottom: 24,
-    textAlign: 'center',
+    textAlign: "center",
   },
   form: {
-    backgroundColor: '#1A1616',
-    borderColor: '#444',
+    backgroundColor: "#1A1616",
+    borderColor: "#444",
     borderWidth: 1,
     borderRadius: 10,
     padding: 20,
   },
   label: {
-    color: '#FFB267',
+    color: "#FFB267",
     marginBottom: 6,
     fontSize: 14,
   },
   input: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 6,
     paddingHorizontal: 10,
     paddingVertical: 10,
     fontSize: 14,
   },
   checkboxRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginVertical: 14,
   },
   checkboxBox: {
     width: 18,
     height: 18,
     borderWidth: 1.5,
-    borderColor: '#FFB267',
+    borderColor: "#FFB267",
     borderRadius: 4,
-    backgroundColor: 'transparent',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "transparent",
+    justifyContent: "center",
+    alignItems: "center",
   },
   checkboxChecked: {
-    backgroundColor: '#FFB267',
+    backgroundColor: "#FFB267",
   },
   checkboxTick: {
     width: 10,
     height: 10,
-    backgroundColor: '#211D1D',
+    backgroundColor: "#211D1D",
     borderRadius: 2,
   },
   rememberText: {
-    color: '#FFF',
+    color: "#FFF",
     marginLeft: 8,
   },
   forgotText: {
-    color: '#AAA',
+    color: "#AAA",
     fontSize: 13,
-    textDecorationLine: 'underline',
+    textDecorationLine: "underline",
   },
   loginButton: {
-    backgroundColor: '#FFB267',
+    backgroundColor: "#FFB267",
     borderRadius: 6,
     paddingVertical: 12,
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: 8,
   },
   loginText: {
-    color: '#211D1D',
+    color: "#211D1D",
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   signupButton: {
-    backgroundColor: '#555',
+    backgroundColor: "#555",
     borderRadius: 6,
     paddingVertical: 12,
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: 10,
   },
   signupText: {
-    color: '#FFF',
+    color: "#FFF",
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
   },
 });

@@ -1,15 +1,18 @@
-import { Stack, useRouter } from 'expo-router';
-import React, { useEffect } from 'react';
-import { ThemeProvider, DarkTheme, DefaultTheme } from '@react-navigation/native';
-import { useColorScheme } from '@/hooks/useColorScheme';
-import { useFonts } from 'expo-font';
-import * as SplashScreen from 'expo-splash-screen';
-import { StatusBar } from 'expo-status-bar';
-import { View, ActivityIndicator } from 'react-native';
-
-import { AuthProvider, useAuth } from '../context/AuthContext';
-import { DeviceProvider } from '@/context/DeviceContext';
-import { SliderProvider } from '@/context/SliderContext';
+import { Stack, useRouter } from "expo-router";
+import React, { useEffect } from "react";
+import {
+  ThemeProvider,
+  DarkTheme,
+  DefaultTheme,
+} from "@react-navigation/native";
+import { useColorScheme } from "@/hooks/useColorScheme";
+import { useFonts } from "expo-font";
+import * as SplashScreen from "expo-splash-screen";
+import { StatusBar } from "expo-status-bar";
+import { View, ActivityIndicator } from "react-native";
+import { AuthProvider, useAuth } from "../context/AuthContext";
+import { DeviceProvider } from "@/context/DeviceContext";
+import { SliderProvider } from "@/context/SliderContext";
 
 function RootNavigator() {
   const { user } = useAuth();
@@ -17,14 +20,12 @@ function RootNavigator() {
 
   useEffect(() => {
     if (!user) {
-      router.replace('/login');
+      router.replace("/login");
     }
   }, [user]);
 
   return (
-    <Stack
-      screenOptions={{ headerShown: false }}
-    >
+    <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="login" />
       <Stack.Screen name="register" />
       <Stack.Screen name="(tabs)" />
@@ -39,7 +40,7 @@ function RootNavigator() {
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
+    SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   });
 
   useEffect(() => {
@@ -54,7 +55,14 @@ export default function RootLayout() {
 
   if (!loaded) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#211D1D' }}>
+      <View
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: "#211D1D",
+        }}
+      >
         <ActivityIndicator size="large" color="#FFB267" />
       </View>
     );
@@ -64,7 +72,9 @@ export default function RootLayout() {
     <AuthProvider>
       <DeviceProvider>
         <SliderProvider>
-          <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+          <ThemeProvider
+            value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
+          >
             <RootNavigator />
             <StatusBar style="auto" />
           </ThemeProvider>
