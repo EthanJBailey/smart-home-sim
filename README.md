@@ -60,17 +60,11 @@ smart-home-simulator/
 
 ```bash
 cd smart-home-simulator
+cd SmartThingies
 npm install
 npx expo start
 ```
 
-### Backend Setup
-
-```bash
-cd backend
-pip install -r requirements.txt
-python app.py  # or manage.py runserver for Django
-```
 
 > Adjust environment variables and DB settings as needed in the backend config.
 
