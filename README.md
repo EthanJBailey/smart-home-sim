@@ -8,7 +8,7 @@ This simulator provides a polished mobile experience for controlling and monitor
 
 ### 🔑 Key Features
 
-- 📊 **Home Dashboard**: See summarized analytics, automation rules, energy metrics, and user preferences.
+- 📊 **Home Dashboard**: View and manage rooms that contain smart devices, toggle devices on/off, and customize user preferences.
 - 💡 **Device Interaction**: View all connected smart devices with status indicators and categorized display.
 - 🔍 **Search Functionality**: Easily explore devices and rooms.
 - ⚙️ **User Settings**: Manage profile, notifications, and account-level preferences.
