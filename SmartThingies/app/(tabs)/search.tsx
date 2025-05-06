@@ -1,3 +1,6 @@
+// Search Tab
+
+// Import components
 import React, { useEffect, useState } from "react";
 import {
   View,
@@ -17,7 +20,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { Picker } from "@react-native-picker/picker";
 import axios from "axios";
 
-// Image map using static require
+// Map image paths to static assets
 const imageMap = {
   "/assets/images/vacuum.png": require("@/assets/images/vacuum.png"),
   "/assets/images/bulb.png": require("@/assets/images/bulb.png"),
@@ -25,6 +28,7 @@ const imageMap = {
   "/assets/images/unknown.png": require("@/assets/images/humidifier.png"),
 };
 
+// Device type reference for mapping names to backend ids
 const deviceTypes = [
   { id: 1, name: "Vacuum cleaner" },
   { id: 2, name: "Smart bulb" },
@@ -49,6 +53,7 @@ export default function SearchScreen() {
   const [loading, setLoading] = useState(false);
   const [selectedTypeId, setSelectedTypeId] = useState(7);
 
+  // Fetch devices from the server based on search keyword
   const fetchDevices = async () => {
     try {
       const res = await axios.get(
@@ -58,6 +63,7 @@ export default function SearchScreen() {
         ...device,
         image: imageMap[device.image] || imageMap["/assets/images/unknown.png"],
       }));
+      // Limit to top 5 results + manual add
       const limitedDevices = mappedDevices.slice(0, 5);
       setDevices([...limitedDevices, { id: "manual" }]);
     } catch (err) {
@@ -65,10 +71,12 @@ export default function SearchScreen() {
     }
   };
 
+  // Trigger search fetch on query change
   useEffect(() => {
     fetchDevices();
   }, [query]);
 
+  // When a device result is pressed (or manual add)
   const handleDevicePress = (device) => {
     if (device.id !== "manual") {
       setSelectedDevice(device);
@@ -84,6 +92,7 @@ export default function SearchScreen() {
     }
   };
 
+  // Submit new device from manual form
   const handleAddDevice = async () => {
     try {
       Keyboard.dismiss();
@@ -99,6 +108,7 @@ export default function SearchScreen() {
     }
   };
 
+  // Confirm and save a selected search result as a new device
   const handleConfirmAddDevice = async () => {
     try {
       if (!selectedDevice || !selectedRoom) return;
@@ -121,12 +131,14 @@ export default function SearchScreen() {
     }
   };
 
+  // Match the selected device type for confirmation modal
   const selectedType = deviceTypes.find(
     (t) => t.id === Number(selectedDevice?.type_id)
   );
 
   return (
     <View style={styles.container}>
+      {/* Header bar */}
       <View style={styles.headerWrapper}>
         <Text style={styles.title}>Search</Text>
         <View style={styles.rightInfo}>
@@ -141,6 +153,7 @@ export default function SearchScreen() {
         </View>
       </View>
 
+      {/* Search bar and refresh button */}
       <View style={styles.searchRow}>
         <View style={styles.searchBar}>
           <Ionicons name="search" size={20} color="#FFB267" />
@@ -158,6 +171,7 @@ export default function SearchScreen() {
         </TouchableOpacity>
       </View>
 
+      {/* Device results list */}
       <FlatList
         data={devices}
         numColumns={2}
@@ -176,6 +190,7 @@ export default function SearchScreen() {
             </TouchableOpacity>
           ) : (
             <TouchableOpacity
+              // Card for search results
               style={styles.deviceCard}
               onPress={() => handleDevicePress(item)}
             >
@@ -187,6 +202,7 @@ export default function SearchScreen() {
         }
       />
 
+      {/* Add Device button */}
       <TouchableOpacity
         style={styles.addButton}
         onPress={() => setShowAddModal(true)}
@@ -194,11 +210,13 @@ export default function SearchScreen() {
         <Text style={styles.addButtonText}>Add device</Text>
       </TouchableOpacity>
 
+      {/* Modal for manual device entry */}
       <Modal transparent={true} visible={showAddModal} animationType="fade">
         <View style={modalStyles.overlay}>
           <View style={modalStyles.modalView}>
             <Text style={styles.title}>Add New Device</Text>
 
+            {/* Manual input */}
             <TextInput
               placeholder="Name"
               placeholderTextColor="#888"
@@ -209,6 +227,7 @@ export default function SearchScreen() {
               }
             />
 
+            {/* Device type picker */}
             <Picker
               selectedValue={newDevice.type_id}
               onValueChange={(value) =>
@@ -228,6 +247,7 @@ export default function SearchScreen() {
               <Picker.Item label="Unknown" value={7} />
             </Picker>
 
+            {/* Room picker */}
             <Picker
               selectedValue={newDevice.room_id}
               onValueChange={(value) =>
@@ -247,6 +267,7 @@ export default function SearchScreen() {
               <Picker.Item label="Dining Room" value={4} />
             </Picker>
 
+            {/* Submit button */}
             <Pressable
               style={modalStyles.modalBtn}
               onPress={handleAddDevice}
@@ -259,6 +280,7 @@ export default function SearchScreen() {
               )}
             </Pressable>
 
+            {/* Cancel button */}
             <Pressable
               style={modalStyles.closeBtn}
               onPress={() => setShowAddModal(false)}
@@ -269,6 +291,7 @@ export default function SearchScreen() {
         </View>
       </Modal>
 
+      {/* Modal for confirming selected device */}
       {selectedDevice && (
         <Modal
           transparent={true}

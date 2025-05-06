@@ -1,3 +1,6 @@
+// Devices Tab
+
+// Import components
 import React, { useEffect, useState } from "react";
 import {
   View,
@@ -16,7 +19,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { Picker } from "@react-native-picker/picker";
 import axios from "axios";
 
-// Image mapping
+// Image mapping for devices
 const imageMap = {
   "/assets/images/vacuum.png": require("@/assets/images/vacuum.png"),
   "/assets/images/bulb.png": require("@/assets/images/bulb.png"),
@@ -25,20 +28,27 @@ const imageMap = {
 };
 
 export default function DevicesScreen() {
+  // List of all devices
   const [devices, setDevices] = useState([]);
+  // Currently selected device for modal
   const [selectedDevice, setSelectedDevice] = useState(null);
+  // Controls modal visibility
   const [modalVisible, setModalVisible] = useState(false);
+  // Data used in modal editing
   const [updatedDevice, setUpdatedDevice] = useState({
     name: "",
     type_id: "",
     room_id: "",
   });
+  // Loading state for updates
   const [loading, setLoading] = useState(false);
 
+  // Fetch all devices when component is mounted
   useEffect(() => {
     fetchDevices();
   }, []);
 
+  // Fetches device data from backend and applies image mapping to each device in the list
   const fetchDevices = async () => {
     try {
       const response = await axios.get(
@@ -54,6 +64,7 @@ export default function DevicesScreen() {
     }
   };
 
+  // Opens the modal (pop-up) with the selected device's data
   const handleDevicePress = (device) => {
     setSelectedDevice(device);
     setUpdatedDevice({
@@ -64,6 +75,7 @@ export default function DevicesScreen() {
     setModalVisible(true);
   };
 
+  // Sends updated device info to the server
   const handleUpdateDevice = async () => {
     try {
       setLoading(true);
@@ -82,6 +94,7 @@ export default function DevicesScreen() {
     }
   };
 
+  // Sends a delete request for the selected device
   const handleDelete = async () => {
     try {
       await fetch(
@@ -100,6 +113,7 @@ export default function DevicesScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.headerWrapper}>
+        {/* Header with title and device count */}
         <Text style={styles.title}>All Devices</Text>
         <View style={styles.rightInfo}>
           <Text style={styles.deviceCount}>{devices.length} devices</Text>
@@ -113,6 +127,7 @@ export default function DevicesScreen() {
         </View>
       </View>
 
+      {/* Device grid using FlatList */}
       <FlatList
         data={devices}
         numColumns={2}
@@ -134,7 +149,7 @@ export default function DevicesScreen() {
         )}
       />
 
-      {/* Device Detail Modal */}
+      {/* Edit Device Modal */}
       <Modal
         visible={modalVisible}
         animationType="slide"
@@ -143,6 +158,7 @@ export default function DevicesScreen() {
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
+            {/* Selected device info */}
             {selectedDevice && (
               <>
                 <Image
@@ -172,6 +188,7 @@ export default function DevicesScreen() {
                   }
                 />
 
+                {/* Picker for device type */}
                 <Picker
                   selectedValue={String(updatedDevice.type_id || "")}
                   onValueChange={(value) =>
@@ -190,6 +207,7 @@ export default function DevicesScreen() {
                   <Picker.Item label="Unknown" value="7" />
                 </Picker>
 
+                {/* Picker for room */}
                 <Picker
                   selectedValue={String(updatedDevice.room_id || "")}
                   onValueChange={(value) =>
@@ -206,7 +224,8 @@ export default function DevicesScreen() {
                   <Picker.Item label="Bedroom" value="3" />
                   <Picker.Item label="Dining Room" value="4" />
                 </Picker>
-
+                
+                {/* Submit update button */}
                 <Pressable
                   style={styles.modalButton}
                   onPress={handleUpdateDevice}
@@ -219,10 +238,12 @@ export default function DevicesScreen() {
                   )}
                 </Pressable>
 
+                {/* Delete button */}
                 <Pressable style={styles.deleteBtn} onPress={handleDelete}>
                   <Text style={styles.deleteBtnText}>Delete Device</Text>
                 </Pressable>
 
+                {/* Close modal button */}
                 <Pressable
                   style={[
                     styles.modalButton,
@@ -240,6 +261,7 @@ export default function DevicesScreen() {
         </View>
       </Modal>
 
+      {/* Refresh button to re-fetch device list */}
       <TouchableOpacity onPress={fetchDevices} style={styles.refreshButton}>
         <Ionicons name="refresh" size={16} color="#211D1D" />
         <Text style={styles.refreshText}>Refresh</Text>

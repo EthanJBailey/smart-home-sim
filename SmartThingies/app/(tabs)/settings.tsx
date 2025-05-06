@@ -1,3 +1,6 @@
+// Settings tab
+
+// Import components
 import React, { useEffect } from "react";
 import {
   View,
@@ -14,7 +17,9 @@ import { useDeviceContext } from "@/context/DeviceContext";
 import { useAuth } from "../../context/AuthContext";
 
 export default function SettingsScreen() {
+  // Navigation control
   const router = useRouter();
+  // User info from AuthContext
   const { user } = useAuth();
   const { deviceState, toggleDevice } = useDeviceContext();
   const notifications = [
