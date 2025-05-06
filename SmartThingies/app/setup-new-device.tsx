@@ -1,3 +1,9 @@
+// Setup New Account Screen: Page 3 --> Setup new device
+// -----------------------------------------------------
+// Part 3 of the Setup process, choose a device from the list to
+// add to room chosen in Part 2
+
+// Import components
 import React, { useEffect, useState } from "react";
 import {
   View,
@@ -11,11 +17,17 @@ import { useRouter } from "expo-router";
 import { Picker } from "@react-native-picker/picker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
+
 export default function AddDeviceScreen() {
+  // Navigation control
   const router = useRouter();
+
+  // States to track selected device, room, and home name
   const [selectedDevice, setSelectedDevice] = useState("");
   const [homeName, setHomeName] = useState("");
   const [selectedRoom, setSelectedRoom] = useState("");
+
+  // Load selected room from local storage on mount
   useEffect(() => {
     const loadSelectedRoom = async () => {
       try {
@@ -30,7 +42,7 @@ export default function AddDeviceScreen() {
 
     loadSelectedRoom();
   }, []);
-
+  // Load home name from local storage on mount
   useEffect(() => {
     const loadHomeName = async () => {
       try {
@@ -46,12 +58,14 @@ export default function AddDeviceScreen() {
     loadHomeName();
   }, []);
 
+  // Handle logic when user clicks "Next"
   const handleNext = async () => {
     if (!selectedDevice) {
       alert("Please select a device before continuing.");
       return;
     }
 
+    // Map selected room name to corresponding backend room ID
     try {
       const roomId =
         selectedRoom === "Living Room"
@@ -85,6 +99,7 @@ export default function AddDeviceScreen() {
           break;
       }
 
+      // Send POST request to create device
       const response = await fetch("http://146.190.130.85:8000/create-device", {
         method: "POST",
         headers: {
@@ -98,6 +113,7 @@ export default function AddDeviceScreen() {
         }),
       });
 
+      // Retrieve server response
       const data = await response.json();
 
       if (response.ok) {
@@ -116,6 +132,7 @@ export default function AddDeviceScreen() {
 
   return (
     <View style={styles.container}>
+      {/* Card layout to hold the image, text, picker, and button */}
       <View style={styles.card}>
         <Image
           source={require("@/assets/images/SmartThingies.png")}
@@ -123,16 +140,19 @@ export default function AddDeviceScreen() {
           resizeMode="contain"
         />
 
+        {/* Title and subtitle prompting user to add a device */}
         <Text style={styles.title}>Add Your First Device</Text>
         <Text style={styles.subtitle}>Next, add a device to your room:</Text>
 
         <View style={styles.pickerWrapper}>
+          {/* Device selection dropdown */}
           <Picker
             selectedValue={selectedDevice}
             onValueChange={(value) => setSelectedDevice(value)}
             style={styles.picker}
             dropdownIconColor="#211D1D"
           >
+            {/* Disabled default option shown when nothing is selected */}
             {selectedDevice === "" && (
               <Picker.Item
                 label="Select device from list"
@@ -147,6 +167,7 @@ export default function AddDeviceScreen() {
           </Picker>
         </View>
 
+        {/* "Next" button to proceed after selecting a device */}
         <TouchableOpacity
           style={[styles.button, !selectedDevice && styles.buttonDisabled]}
           onPress={handleNext}
@@ -166,6 +187,7 @@ export default function AddDeviceScreen() {
   );
 }
 
+// Define visual styles for all parts of the screen (colors, spacing, fonts, layout).
 const styles = StyleSheet.create({
   container: {
     flex: 1,

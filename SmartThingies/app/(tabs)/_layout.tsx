@@ -1,3 +1,9 @@
+// INNER _layout.tsx file
+// ----------------------
+// This file is the foundation for each screen in the navigational bar (tabs) at the
+// bottom of the application.
+
+// Import components
 import { Tabs } from "expo-router";
 import React from "react";
 import { Platform } from "react-native";
@@ -8,10 +14,13 @@ import TabBarBackground from "@/components/ui/TabBarBackground";
 import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
 
+// Defines the tab layout for the navigational buttons.
 export default function TabLayout() {
+  // Detect current color scheme (light or dark)
   const colorScheme = useColorScheme();
 
   return (
+    // Define tabs on page and set their appearance
     <Tabs
       screenOptions={{
         headerShown: false,
@@ -32,6 +41,8 @@ export default function TabLayout() {
         }),
       }}
     >
+
+      {/* Home tab */}
       <Tabs.Screen
         name="index"
         options={{
@@ -42,6 +53,7 @@ export default function TabLayout() {
         }}
       />
 
+      {/* Search tab */}
       <Tabs.Screen
         name="search"
         options={{
@@ -52,6 +64,7 @@ export default function TabLayout() {
         }}
       />
 
+      {/* Devices tab */}
       <Tabs.Screen
         name="devices"
         options={{
@@ -62,6 +75,7 @@ export default function TabLayout() {
         }}
       />
 
+      {/* Settings tab */}
       <Tabs.Screen
         name="settings"
         options={{

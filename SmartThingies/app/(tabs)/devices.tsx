@@ -248,6 +248,7 @@ export default function DevicesScreen() {
   );
 }
 
+// Define visual styles for all parts of the screen (colors, spacing, fonts, layout).
 const styles = StyleSheet.create({
   container: {
     flex: 1,

@@ -1,3 +1,9 @@
+// Setup New Account Screen: Page 2 --> Setup new room
+// -----------------------------------------------------
+// Part 2 of the Setup process, choose a room from the list to
+// add a new device to.
+
+// Import components
 import React, { useState } from "react";
 import {
   View,
@@ -13,9 +19,14 @@ import { useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function AddRoomScreen() {
+  // Stores the home name to display in the header
   const [homeName, setHomeName] = useState("");
+  // Navigation control
   const router = useRouter();
+  // Stores the selected room name
   const [selectedRoom, setSelectedRoom] = useState("");
+
+  // Load stored home name on component mount
   useEffect(() => {
     const loadHomeName = async () => {
       try {
@@ -31,14 +42,16 @@ export default function AddRoomScreen() {
     loadHomeName();
   }, []);
 
+  // Called when the user presses the "Next" button
   const handleNext = async () => {
     console.log("Room selected:", selectedRoom);
+    // Require a room selection
     if (selectedRoom == null) {
       alert("Please select a room before continuing.");
       return;
     } else {
       try {
-        // Adjust room IDs based on the updated room names
+        // Map room names to backend room IDs
         const roomId =
           selectedRoom === "Living Room"
             ? 2
@@ -52,7 +65,7 @@ export default function AddRoomScreen() {
           alert("Invalid room selected.");
           return;
         }
-
+        // Save selected room to local storage and continue to device setup
         await AsyncStorage.setItem("selectedRoom", selectedRoom);
         router.replace("/setup-new-device");
       } catch (error) {
@@ -63,16 +76,20 @@ export default function AddRoomScreen() {
 
   return (
     <View style={styles.container}>
+      {/* Card layout to group and style inner content */}
       <View style={styles.card}>
+        {/* Display app icon */}
         <Image
           source={require("@/assets/images/SmartThingies.png")}
           style={styles.icon}
           resizeMode="contain"
         />
 
+        {/* Display the current home name and instructions */}
         <Text style={styles.title}>{`${homeName}`}</Text>
         <Text style={styles.subtitle}>Next, add a room to your home:</Text>
 
+        {/* Dropdown for selecting a room */}
         <View style={styles.pickerWrapper}>
           <Picker
             selectedValue={selectedRoom}
@@ -80,6 +97,7 @@ export default function AddRoomScreen() {
             style={styles.picker}
             dropdownIconColor="#211D1D"
           >
+            {/* Placeholder option when nothing is selected */}
             {selectedRoom === "" && (
               <Picker.Item
                 label="Select room from list"
@@ -88,12 +106,14 @@ export default function AddRoomScreen() {
                 color="#999"
               />
             )}
+            {/* Available room options */}
             <Picker.Item label="Living Room" value="Living Room" />
             <Picker.Item label="Bedroom" value="Bedroom" />
             <Picker.Item label="Dining Room" value="Dining Room" />
           </Picker>
         </View>
 
+        {/* Button to continue to the next setup screen */}
         <TouchableOpacity style={styles.button} onPress={handleNext}>
           <Text style={styles.buttonText}>Next</Text>
         </TouchableOpacity>
@@ -102,6 +122,7 @@ export default function AddRoomScreen() {
   );
 }
 
+// Define visual styles for all parts of the screen (colors, spacing, fonts, layout).
 const styles = StyleSheet.create({
   container: {
     flex: 1,

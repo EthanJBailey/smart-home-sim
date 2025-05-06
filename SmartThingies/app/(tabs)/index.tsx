@@ -53,6 +53,7 @@ export default function HomeScreen() {
   const { setUser } = useAuth();
   const scrollRef = useRef<ScrollView>(null);
   const notificationRef = useRef<View>(null);
+  // Navigation control
   const router = useRouter();
   const { deviceState, toggleDevice } = useDeviceContext();
   const {
@@ -247,6 +248,7 @@ export default function HomeScreen() {
   );
 }
 
+// Define visual styles for all parts of the screen (colors, spacing, fonts, layout).
 const styles = StyleSheet.create({
   container: {
     flex: 1,

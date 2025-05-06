@@ -1,3 +1,8 @@
+// Setup New Account Screen: Page 1 --> Setup new home
+// -----------------------------------------------------
+// Part 1 of the Setup process, choose a name for your new smart home
+
+// Import components
 import React, { useState } from "react";
 import {
   View,
@@ -12,29 +17,17 @@ import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function NameHomeScreen() {
+  // Store the name of the home entered by the user
   const [homeName, setHomeName] = useState("");
+  // Navigation control
   const router = useRouter();
 
-  // const handleNext = async () => {
-  //   if (homeName.trim()) {
-  //     try {
-  //       await AsyncStorage.setItem('homeName', homeName); // ✅ must be awaited in an async function
-  //       router.push({
-  //         pathname: '/setup-new-room',
-  //         params: { homeName },
-  //       });
-  //     } catch (error) {
-  //       console.error('Failed to save home name:', error);
-  //       alert('Something went wrong. Please try again.');
-  //     }
-  //   } else {
-  //     alert('Please enter a name for your home.');
-  //   }
-  // };
-
+  // Function to handle what happens when the user clicks "Next"
   const handleNext = async () => {
+    // Check if input is not empty
     if (homeName.trim()) {
       try {
+        // Send POST request to backend to create a home
         const response = await fetch(
           "http://146.190.130.85:8000/create-home/",
           {
@@ -50,34 +43,44 @@ export default function NameHomeScreen() {
           }
         );
 
+        // Retrieve and store data from server
         const data = await response.json();
+
+        // If request failed, show error
         if (!response.ok) throw new Error("Failed to create home");
 
         await AsyncStorage.setItem("homeId", data.id.toString());
         await AsyncStorage.setItem("homeName", homeName);
+
+        // Navigate to the next setup screen
         router.push("/setup-new-room");
       } catch (error) {
         console.error("Failed to save home name:", error);
         alert("Something went wrong. Please try again.");
       }
     } else {
+      // If input is empty, show alert
       alert("Please enter a name for your home.");
     }
   };
 
   return (
     <View style={styles.container}>
+      {/* Card that contains the content and styles it */}
       <View style={styles.card}>
+        {/* App icon image */}
         <Image
           source={require("@/assets/images/SmartThingies.png")}
           style={styles.icon}
           resizeMode="contain"
         />
+        {/* Title and subtitle introducing the setup */}
         <Text style={styles.title}>Get Started with SmartThingies</Text>
         <Text style={styles.subtitle}>
           First, let's create a name for your home:
         </Text>
 
+        {/* Input field for home name */}
         <TextInput
           style={styles.input}
           placeholder="Enter home name"
@@ -86,6 +89,7 @@ export default function NameHomeScreen() {
           onChangeText={setHomeName}
         />
 
+        {/* "Next" button to proceed to room setup */}
         <TouchableOpacity style={styles.button} onPress={handleNext}>
           <Text style={styles.buttonText}>Next</Text>
         </TouchableOpacity>
@@ -94,6 +98,7 @@ export default function NameHomeScreen() {
   );
 }
 
+// Define visual styles for all parts of the screen (colors, spacing, fonts, layout).
 const styles = StyleSheet.create({
   container: {
     flex: 1,

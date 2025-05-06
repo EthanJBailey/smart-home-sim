@@ -1,3 +1,6 @@
+// Register Screen
+
+// Import components
 import React, { useState } from "react";
 import {
   View,
@@ -12,20 +15,27 @@ import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useAuth } from "../context/AuthContext"; // Adjust path as needed
 
+// This screen allows new users to register for the app by providing their name, email, and password.
 export default function RegisterScreen() {
+  // Get access to navigation so we can redirect the user to the next setup screen after registering.
   const router = useRouter();
+  // Use the authentication context to save user info throughout the app after successful registration.
   const { setUser } = useAuth();
+  // Manage the state of the input fields for the registration form.
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  // This function handles the registration process when the user presses "Sign Up".
   const handleRegister = async () => {
+    // Check that all fields are filled in. If not, show an alert.
     if (!fullName || !email || !password) {
       Alert.alert("Missing Fields", "Please fill out all fields.");
       return;
     }
-
+    
     try {
+      // Send a POST request to the backend with the registration data.
       const response = await fetch("http://146.190.130.85:8000/register/", {
         method: "POST",
         headers: {
@@ -38,25 +48,31 @@ export default function RegisterScreen() {
         }),
       });
 
+      // Send a POST request to the backend with the registration data.
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.detail || "Registration failed");
       }
 
+      // Parse the response data from the server.
       const data = await response.json();
       console.log("Success:", data);
 
-      // Save user in context
+      // Save the returned user info (name and email) in global context for access across the app.
       setUser({
         full_name: data.full_name,
         email: data.email,
       });
 
+      // Save a login flag to local storage so the app knows the user is logged in next time.
       await AsyncStorage.setItem("isLoggedIn", "true");
+
+      // Navigate the user to the home setup screen after registration.
       router.replace("/setup-new-home");
 
-      router.replace("/setup-new-home"); // ⬅️ Go to setup-new-home immediately after register
     } catch (error: any) {
+      // If the request fails for any reason, show an error message to the user.
+
       console.error("Error:", error.message);
       Alert.alert("Registration Error", error.message);
     }
@@ -64,11 +80,14 @@ export default function RegisterScreen() {
 
   return (
     <View style={styles.container}>
+      {/* Title and subtitle displayed at the top of the screen */}
       <Text style={styles.title}>Register</Text>
       <Text style={styles.subtitle}>Create your new profile below</Text>
 
+      {/* The main form area with styled input fields and a button */}
       <View style={styles.form}>
         <Text style={styles.label}>Full Name</Text>
+        {/* Input field for user's full name */}
         <TextInput
           style={styles.input}
           placeholder="First and Last Name"
@@ -78,6 +97,7 @@ export default function RegisterScreen() {
         />
 
         <Text style={[styles.label, { marginTop: 12 }]}>Email</Text>
+        {/* Input field for user's email address */}
         <TextInput
           style={styles.input}
           placeholder="johndoe@example.com"
@@ -86,6 +106,7 @@ export default function RegisterScreen() {
           onChangeText={setEmail}
         />
 
+        {/* Input field for user's password */}
         <Text style={[styles.label, { marginTop: 12 }]}>Password</Text>
         <TextInput
           style={styles.input}
@@ -96,6 +117,7 @@ export default function RegisterScreen() {
           onChangeText={setPassword}
         />
 
+        {/* Sign Up button that triggers the registration handler */}
         <TouchableOpacity style={styles.signupButton} onPress={handleRegister}>
           <Text style={styles.signupText}>Sign Up</Text>
         </TouchableOpacity>
@@ -104,6 +126,7 @@ export default function RegisterScreen() {
   );
 }
 
+// Define visual styles for all parts of the screen (colors, spacing, fonts, layout).
 const styles = StyleSheet.create({
   container: {
     flex: 1,

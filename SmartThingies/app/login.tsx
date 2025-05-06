@@ -1,3 +1,6 @@
+// Login Screen
+
+// Import components
 import React, { useState } from "react";
 import {
   View,
@@ -13,38 +16,48 @@ import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useAuth } from "../context/AuthContext";
 
+// This screen allows users to log into the SmartThingies app using their email and password.
 export default function LoginScreen() {
+  // Allows navigation to other screens (e.g., home screen after successful login).
   const router = useRouter();
+  // Provides a function to store the logged-in user's info in global app context.
   const { setUser } = useAuth();
+  // Local states to hold input values: email, password, and whether the user wants to be remembered.
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
+
+  // This function runs when the user presses "Login". It validates input, sends a login request, stores 
+  // user info, and redirects to the home screen.
   const handleLogin = async () => {
+    // Make sure both fields are filled in before continuing. If not, show an alert.
     if (!email.trim() || !password.trim()) {
       Alert.alert("Missing fields", "Please enter your email and password.");
       return;
     }
     try {
+      // Send the email and password to the backend server for verification.
       const response = await axios.post("http://146.190.130.85:8000/login", {
         email,
         password,
       });
 
+      // Log data to ensure proper data is retrieved from the database.
       console.log("Login response data:", response.data);
 
-      // ✅ Save user in context
+      // Save user in context
       setUser({
         full_name: response.data.user.full_name,
         email: response.data.user.email,
       });
 
-      // ✅ Store login info if needed
+      // Store login info if needed
       if (rememberMe) {
         await AsyncStorage.setItem("userEmail", email);
       }
       await AsyncStorage.setItem("isLoggedIn", "true");
 
-      // ✅ Navigate to tabs
+      // Navigate to tabs
       router.replace("/(tabs)");
     } catch (error: any) {
       console.error(error);
@@ -55,13 +68,17 @@ export default function LoginScreen() {
     }
   };
 
+  // Render the login screen layout, including input fields, buttons, and optional "Remember me" and "Forgot Password?" features.
   return (
     <View style={styles.container}>
+      {/* App title and subtitle welcoming the user.*/}
       <Text style={styles.title}>Welcome to SmartThingies</Text>
       <Text style={styles.subtitle}>Sign in or create your profile below</Text>
 
+      {/*Form section containing the input fields and action buttons.*/}
       <View style={styles.form}>
         <Text style={styles.label}>Email</Text>
+        {/*Email and password input fields with placeholder text and styling.*/}
         <TextInput
           style={styles.input}
           placeholder="Email"
@@ -70,7 +87,9 @@ export default function LoginScreen() {
           onChangeText={setEmail}
         />
 
+
         <Text style={[styles.label, { marginTop: 12 }]}>Password</Text>
+        {/*Email and password input fields with placeholder text and styling.*/}
         <TextInput
           style={styles.input}
           placeholder="Password"
@@ -80,6 +99,7 @@ export default function LoginScreen() {
           onChangeText={setPassword}
         />
 
+        {/*Row containing the custom "Remember me" checkbox and the "Forgot Password?" link.*/}
         <View style={styles.checkboxRow}>
           <TouchableOpacity
             style={[styles.checkboxBox, rememberMe && styles.checkboxChecked]}
@@ -100,10 +120,12 @@ export default function LoginScreen() {
           </TouchableOpacity>
         </View>
 
+        {/*Login button that triggers the login handler when pressed.*/}
         <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
           <Text style={styles.loginText}>Login</Text>
         </TouchableOpacity>
-
+        
+        {/*Button to navigate to the registration screen if the user doesn't have an account.*/}
         <TouchableOpacity
           style={styles.signupButton}
           onPress={() => router.push("/register")}
@@ -115,6 +137,7 @@ export default function LoginScreen() {
   );
 }
 
+// Define visual styles for all parts of the screen (colors, spacing, fonts, layout).
 const styles = StyleSheet.create({
   container: {
     flex: 1,

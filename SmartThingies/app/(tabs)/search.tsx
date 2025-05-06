@@ -352,6 +352,7 @@ export default function SearchScreen() {
   );
 }
 
+// Define visual styles for all parts of the screen (colors, spacing, fonts, layout).
 const modalStyles = StyleSheet.create({
   overlay: {
     flex: 1,
